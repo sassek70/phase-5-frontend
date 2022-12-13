@@ -1,3 +1,6 @@
+import { createConsumer } from "@rails/actioncable";
+
+
 
 function App() {
   return (
