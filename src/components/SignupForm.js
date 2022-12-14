@@ -1,7 +1,9 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 
 
-const SignUpForm = () => {
+const SignUpForm = ({setCurrentUser}) => {
+    const navigate = useNavigate()
     const [errors, setErrors] = useState()
     const [formData, setFormData] = useState({
         username: "",
@@ -32,13 +34,18 @@ const SignUpForm = () => {
         body: JSON.stringify(formData),
     })
     .then(res => {
-    if (res.ok) {
-        res.json().then(authToken => localStorage.setItem("uid", authToken.auth_token))
-  } else {
-        res.json().then(errors => setErrors(errors.errors))
-  }
-})
-}
+        if (res.ok) {
+            res.json().then(authToken => {
+                setCurrentUser(authToken.user)
+                console.log(authToken.user)
+                localStorage.setItem("uid", authToken.auth_token)
+                navigate('/welcome')
+            })
+        } else {
+            res.json().then(errors => setErrors(errors))
+      }
+    })
+    }
 
 console.log(errors)
 
