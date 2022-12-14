@@ -26,7 +26,7 @@ const LogInForm = () => {
         body: JSON.stringify(formData),
       })
       .then(r => r.json())
-      .then(authToken => localStorage.setItem("token", authToken.auth_token))
+      .then(authToken => localStorage.setItem("uid", authToken.auth_token))
     }
 
 
