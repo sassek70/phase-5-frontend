@@ -1,18 +1,19 @@
 import { createConsumer } from "@rails/actioncable";
 import { useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
+import CreateOrJoinGame from "./CreateOrJoinGame";
 import LogInForm from "./Login Form";
 import SignUpForm from "./SignupForm";
 
 
 
 function App() {
-  const [currentUser, setCurrentUser] = useState("")
+  const [currentUser, setCurrentUser] = useState()
 
 
   useEffect(() => {
-    console.log(localStorage.uid)
-    if (localStorage.uid) {
+    let user = localStorage.uid
+    if (user) {
       fetch(`${process.env.REACT_APP_BACKEND_URL}/existingtoken`, {
         method: 'POST',
         headers: {
@@ -44,6 +45,7 @@ function App() {
     <Routes>
       <Route path='/signup' element={<SignUpForm />}/>
       <Route path='/login' element={<LogInForm />}/>
+      <Route path='/gamelobby' element={<CreateOrJoinGame currentUser={currentUser}/>}/>
     </Routes>
     </>
   );
