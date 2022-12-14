@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import CreateOrJoinGame from "./CreateOrJoinGame";
 import LogInForm from "./Login Form";
+import NavBar from "./NavBar";
 import SignUpForm from "./SignupForm";
 import Welcome from "./Welcome";
 
@@ -28,7 +29,7 @@ function App() {
         .then(user => {
           setCurrentUser(user)
           console.log(user.username)
-          navigate('/welcome')
+          navigate('/home')
         }
       )}
     })
@@ -37,14 +38,19 @@ function App() {
   };
   },[])
 
-  // console.log(currentUser.username)
+  const handleLogOut =() => {
+    localStorage.removeItem("uid")
+    setCurrentUser(null)
+    navigate('/')
+}
 
 
   return (
     <>
-    <h2>Welcome to A Not So Magical Gathering</h2>
+    <h2>A Not So Magical Gathering</h2>
+    <NavBar currentUser={currentUser} handleLogOut={handleLogOut}/>
     <Routes>
-      <Route path='/welcome' element={<Welcome currentUser={currentUser}/>}/>
+      <Route path='/home' element={<Welcome currentUser={currentUser}/>}/>
       <Route path='/signup' element={<SignUpForm setCurrentUser={setCurrentUser}/>}/>
       <Route path='/login' element={<LogInForm setCurrentUser={setCurrentUser}/>}/>
       <Route path='/gamelobby' element={<CreateOrJoinGame currentUser={currentUser}/>}/>

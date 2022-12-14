@@ -39,7 +39,7 @@ const SignUpForm = ({setCurrentUser}) => {
                 setCurrentUser(authToken.user)
                 console.log(authToken.user)
                 localStorage.setItem("uid", authToken.auth_token)
-                navigate('/welcome')
+                navigate('/home')
             })
         } else {
             res.json().then(errors => setErrors(errors))
