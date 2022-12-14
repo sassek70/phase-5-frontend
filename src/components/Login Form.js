@@ -2,6 +2,7 @@ import { useState } from "react"
 
 
 const LogInForm = () => {
+    const [errors, setErrors] = useState()
     const [formData, setFormData] = useState({
         username: "",
         password: ""
@@ -25,15 +26,20 @@ const LogInForm = () => {
         },
         body: JSON.stringify(formData),
       })
-      .then(r => r.json())
-      .then(authToken => localStorage.setItem("uid", authToken.auth_token))
+      .then(res => {
+        if (res.ok) {
+            res.json().then(authToken => localStorage.setItem("uid", authToken.auth_token))
+      } else {
+            res.json().then(errors => setErrors(errors))
+      }
+    })
     }
 
 
-
-
+   
 
     return (
+        <>
         <form onSubmit={handleSubmit}>
             <label htmlFor="username">Username:</label>
             <input type="text" value={formData.username} name="username" placeholder="Enter a Username" onChange={handleChange}></input>
@@ -43,6 +49,12 @@ const LogInForm = () => {
 
             <button type="submit">Log In</button>
         </form>
+        {errors?
+            <p>{errors.error}</p>
+            :
+            <></>
+        }
+        </>
     )
 }
 
