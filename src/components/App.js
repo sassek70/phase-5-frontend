@@ -2,6 +2,7 @@ import { createConsumer } from "@rails/actioncable";
 import { useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import CreateOrJoinGame from "./CreateOrJoinGame";
+import GameBoard from "./GameBoard";
 import LogInForm from "./Login Form";
 import NavBar from "./NavBar";
 import SignUpForm from "./SignupForm";
@@ -11,6 +12,7 @@ import Welcome from "./Welcome";
 
 function App() {
   const navigate = useNavigate()
+  const [gameSession, setGameSession] = useState()
   const [currentUser, setCurrentUser] = useState()
 
 
@@ -41,7 +43,7 @@ function App() {
   const handleLogOut =() => {
     localStorage.removeItem("uid")
     setCurrentUser(null)
-    navigate('/')
+    // navigate('/')
 }
 
 
@@ -53,7 +55,8 @@ function App() {
       <Route path='/home' element={<Welcome currentUser={currentUser}/>}/>
       <Route path='/signup' element={<SignUpForm setCurrentUser={setCurrentUser}/>}/>
       <Route path='/login' element={<LogInForm setCurrentUser={setCurrentUser}/>}/>
-      <Route path='/gamelobby' element={<CreateOrJoinGame currentUser={currentUser}/>}/>
+      <Route path='/hostgame' element={<CreateOrJoinGame currentUser={currentUser} gameSession={gameSession} setGameSession={setGameSession}/>}/>
+      <Route path={`/game/${gameSession? gameSession.game_key : null}`} element={<GameBoard currentUser={currentUser} gameSession={gameSession}/>}/>
     </Routes>
     </>
   );
