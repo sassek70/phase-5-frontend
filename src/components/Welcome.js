@@ -1,10 +1,18 @@
 
 
-const Welcome = (currentUser) => {
+const Welcome = ({currentUser}) => {
 
-    console.log(currentUser.currentUser.username)
+    console.log(currentUser.username)
     return (
-        <h2>{`Welcome ${currentUser.currentUser.username}`}</h2>
+        <>
+        {currentUser?
+        <h2>{`Welcome ${currentUser.username}`}</h2>
+        :
+        <></>
+        }
+        </>
+        // <h2>Welcome</h2>
+
     )
 }
 

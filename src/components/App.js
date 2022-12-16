@@ -2,7 +2,9 @@ import { createConsumer } from "@rails/actioncable";
 import { useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import CreateOrJoinGame from "./CreateOrJoinGame";
+import GameBoard from "./GameBoard";
 import LogInForm from "./Login Form";
+import NavBar from "./NavBar";
 import SignUpForm from "./SignupForm";
 import Welcome from "./Welcome";
 
@@ -10,6 +12,8 @@ import Welcome from "./Welcome";
 
 function App() {
   const navigate = useNavigate()
+  const [guestUser, setGuestUser] = useState()
+  const [gameSession, setGameSession] = useState()
   const [currentUser, setCurrentUser] = useState()
 
 
@@ -28,26 +32,45 @@ function App() {
         .then(user => {
           setCurrentUser(user)
           console.log(user.username)
-          navigate('/welcome')
+          navigate('/home')
         }
       )}
     })
   } else {
-      console.log('No User Found');
+    setGuestUser(parseInt(Math.random() * ((100000 - 1000) + 1000)))
+    console.log('No User Found');
   };
   },[])
 
-  // console.log(currentUser.username)
+  const handleLogOut =() => {
+    localStorage.removeItem("uid")
+    setCurrentUser(null)
+    // navigate('/')
+}
 
+const welcomeMessage = () => {
+  if (currentUser) {
+    return currentUser.username
+  } else {
+    return guestUser
+  }
+  }
+
+  console.log(`/users/${gameSession? gameSession.host_user_id : null}/joingame/${gameSession? gameSession.game_key : null}/game`)
+  console.log(gameSession)
 
   return (
     <>
-    <h2>Welcome to A Not So Magical Gathering</h2>
+    <h2>A Not So Magical Gathering</h2>
+    <p>Welcome {`${welcomeMessage()}`}</p>
+    <NavBar currentUser={currentUser} handleLogOut={handleLogOut}/>
     <Routes>
-      <Route path='/welcome' element={<Welcome currentUser={currentUser}/>}/>
+      <Route path='/home' element={<Welcome currentUser={currentUser}/>}/>
       <Route path='/signup' element={<SignUpForm setCurrentUser={setCurrentUser}/>}/>
       <Route path='/login' element={<LogInForm setCurrentUser={setCurrentUser}/>}/>
-      <Route path='/gamelobby' element={<CreateOrJoinGame currentUser={currentUser}/>}/>
+      <Route path='/hostgame' element={<CreateOrJoinGame currentUser={currentUser} gameSession={gameSession} setGameSession={setGameSession} guestUser={guestUser} setGuestUser={setGuestUser}/>}/>
+      {/* <Route path={`/users/${currentUser? currentUser.id : guestUser}/joingame/${gameSession? gameSession.game_key : null}`} element={<GameBoard currentUser={currentUser} gameSession={gameSession}/>}/> */}
+      <Route path={`/users/${gameSession? gameSession.host_user_id : null}/game/${gameSession? gameSession.game_key : null}`} element={<GameBoard currentUser={currentUser} gameSession={gameSession} guestUser={guestUser}/>}/>
     </Routes>
     </>
   );
