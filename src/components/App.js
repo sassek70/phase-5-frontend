@@ -12,6 +12,7 @@ import Welcome from "./Welcome";
 
 function App() {
   const navigate = useNavigate()
+  const [guestUser, setGuestUser] = useState()
   const [gameSession, setGameSession] = useState()
   const [currentUser, setCurrentUser] = useState()
 
@@ -36,7 +37,8 @@ function App() {
       )}
     })
   } else {
-      console.log('No User Found');
+    setGuestUser(parseInt(Math.random() * ((100000 - 1000) + 1000)))
+    console.log('No User Found');
   };
   },[])
 
@@ -46,17 +48,29 @@ function App() {
     // navigate('/')
 }
 
+const welcomeMessage = () => {
+  if (currentUser) {
+    return currentUser.username
+  } else {
+    return guestUser
+  }
+  }
+
+  console.log(`/users/${gameSession? gameSession.host_user_id : null}/joingame/${gameSession? gameSession.game_key : null}/game`)
+  console.log(gameSession)
 
   return (
     <>
     <h2>A Not So Magical Gathering</h2>
+    <p>Welcome {`${welcomeMessage()}`}</p>
     <NavBar currentUser={currentUser} handleLogOut={handleLogOut}/>
     <Routes>
       <Route path='/home' element={<Welcome currentUser={currentUser}/>}/>
       <Route path='/signup' element={<SignUpForm setCurrentUser={setCurrentUser}/>}/>
       <Route path='/login' element={<LogInForm setCurrentUser={setCurrentUser}/>}/>
-      <Route path='/hostgame' element={<CreateOrJoinGame currentUser={currentUser} gameSession={gameSession} setGameSession={setGameSession}/>}/>
-      <Route path={`/game/${gameSession? gameSession.game_key : null}`} element={<GameBoard currentUser={currentUser} gameSession={gameSession}/>}/>
+      <Route path='/hostgame' element={<CreateOrJoinGame currentUser={currentUser} gameSession={gameSession} setGameSession={setGameSession} guestUser={guestUser} setGuestUser={setGuestUser}/>}/>
+      {/* <Route path={`/users/${currentUser? currentUser.id : guestUser}/joingame/${gameSession? gameSession.game_key : null}`} element={<GameBoard currentUser={currentUser} gameSession={gameSession}/>}/> */}
+      <Route path={`/users/${gameSession? gameSession.host_user_id : null}/game/${gameSession? gameSession.game_key : null}`} element={<GameBoard currentUser={currentUser} gameSession={gameSession} guestUser={guestUser}/>}/>
     </Routes>
     </>
   );
