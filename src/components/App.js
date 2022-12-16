@@ -12,9 +12,9 @@ import Welcome from "./Welcome";
 
 function App() {
   const navigate = useNavigate()
-  const [guestUser, setGuestUser] = useState()
-  const [gameSession, setGameSession] = useState()
-  const [currentUser, setCurrentUser] = useState()
+  const [guestUser, setGuestUser] = useState(null)
+  const [gameSession, setGameSession] = useState(null)
+  const [currentUser, setCurrentUser] = useState(null)
 
 
   useEffect(() => {

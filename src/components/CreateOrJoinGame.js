@@ -6,7 +6,7 @@ const CreateOrJoinGame = ({currentUser, setGameSession, guestUser, setGuestUser,
     // const [currentUser, setCurrentUser] = useState()
     const navigate = useNavigate()
     const [errors, setErrors] = useState()
-    const [formData, setFormData] = useState({})
+    const [formData, setFormData] = useState({gameKey: ""})
     const [gameKey, setGameKey] = useState("")
     console.log(currentUser)
 
