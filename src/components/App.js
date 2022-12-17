@@ -31,7 +31,7 @@ function App() {
         res.json()
         .then(user => {
           setCurrentUser(user)
-          console.log(user.username)
+          // console.log(user.username)
           navigate('/home')
         }
       )}
@@ -56,8 +56,8 @@ const welcomeMessage = () => {
   }
   }
 
-  console.log(`/users/${gameSession? gameSession.host_user_id : null}/joingame/${gameSession? gameSession.game_key : null}/game`)
-  console.log(gameSession)
+  // console.log(`/users/${gameSession? gameSession.host_user_id : null}/joingame/${gameSession? gameSession.game_key : null}/game`)
+  // console.log(gameSession)
 
   return (
     <>
