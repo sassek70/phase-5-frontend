@@ -13,7 +13,7 @@ const SignUpForm = ({setCurrentUser}) => {
         gamesLost: 0
     })
 
-    console.log(formData)
+    // console.log(formData)
 
 
 
@@ -37,7 +37,7 @@ const SignUpForm = ({setCurrentUser}) => {
         if (res.ok) {
             res.json().then(authToken => {
                 setCurrentUser(authToken.user)
-                console.log(authToken.user)
+                // console.log(authToken.user)
                 localStorage.setItem("uid", authToken.auth_token)
                 // navigate('/home')
             })
@@ -47,7 +47,7 @@ const SignUpForm = ({setCurrentUser}) => {
     })
     }
 
-console.log(errors)
+// console.log(errors)
 
 
 

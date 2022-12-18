@@ -32,7 +32,7 @@ const LogInForm = ({setCurrentUser}) => {
         if (res.ok) {
             res.json().then(authToken => {
                 setCurrentUser(authToken.user)
-                console.log(authToken.user)
+                // console.log(authToken.user)
                 localStorage.setItem("uid", authToken.auth_token)
                 // navigate('/home')
             })

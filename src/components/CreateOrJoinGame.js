@@ -6,9 +6,9 @@ const CreateOrJoinGame = ({currentUser, setGameSession, guestUser, setGuestUser,
     // const [currentUser, setCurrentUser] = useState()
     const navigate = useNavigate()
     const [errors, setErrors] = useState()
-    const [formData, setFormData] = useState({})
+    const [formData, setFormData] = useState({gameKey: ""})
     const [gameKey, setGameKey] = useState("")
-    console.log(currentUser)
+    // console.log(currentUser)
 
     const handleChange = (e) => {
         const {name, value} = e.target
@@ -17,7 +17,7 @@ const CreateOrJoinGame = ({currentUser, setGameSession, guestUser, setGuestUser,
 
     const handleClick = () => {
         // e.preventDefault()
-        console.log("click")
+        // console.log("click")
 
         fetch(`${process.env.REACT_APP_BACKEND_URL}/users/${currentUser.id}/creategame`,{
         method: "POST",
@@ -37,10 +37,7 @@ const CreateOrJoinGame = ({currentUser, setGameSession, guestUser, setGuestUser,
     const handleSubmit = (e) => {
         e.preventDefault()
 
-        if (!currentUser) {
-          
-          console.log(guestUser)
-          fetch(`${process.env.REACT_APP_BACKEND_URL}/users/${guestUser}/joingame/${formData.gameKey}`,{
+          fetch(`${process.env.REACT_APP_BACKEND_URL}/users/${currentUser? currentUser.id : guestUser}/joingame/${formData.gameKey}`,{
             method: "PATCH",
             headers: {
               "Content-Type": "application/json",
@@ -59,27 +56,28 @@ const CreateOrJoinGame = ({currentUser, setGameSession, guestUser, setGuestUser,
             res.json().then(errors => setErrors(errors))
           }})
         
-        } else {
+    //     } else {
 
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/users/${currentUser.id}/joingame`,{
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      })
-      .then(res => {if (res.ok) {
-        res.json()
-      .then(newKey => {
-        setGameKey(newKey)
-        console.log(`/users/${currentUser.id}/game/${formData.gameKey}`)
-      })
-    } else {
-      console.log(`/users/${currentUser? currentUser.id : guestUser}/game/${formData.gameKey}`)
+    //     fetch(`${process.env.REACT_APP_BACKEND_URL}/users/${currentUser.id}/joingame`,{
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(formData),
+    //   })
+    //   .then(res => {if (res.ok) {
+    //     res.json()
+    //   .then(newKey => {
+    //     setGameKey(newKey)
+    //     console.log(`/users/${currentUser.id}/game/${formData.gameKey}`)
+    //   })
+    // } else {
+    //   console.log(`/users/${currentUser? currentUser.id : guestUser}/game/${formData.gameKey}`)
 
-      res.json().then(errors => setErrors(errors))
-    }})
-    }}
+    //   res.json().then(errors => setErrors(errors))
+    // }})
+    // }}
+        }
 
     const startGame = () => {
       navigate(`/users/${gameSession.host_user_id}/game/${gameKey}`)

@@ -12,9 +12,9 @@ import Welcome from "./Welcome";
 
 function App() {
   const navigate = useNavigate()
-  const [guestUser, setGuestUser] = useState()
-  const [gameSession, setGameSession] = useState()
-  const [currentUser, setCurrentUser] = useState()
+  const [guestUser, setGuestUser] = useState(null)
+  const [gameSession, setGameSession] = useState(null)
+  const [currentUser, setCurrentUser] = useState(null)
 
 
   useEffect(() => {
@@ -31,7 +31,7 @@ function App() {
         res.json()
         .then(user => {
           setCurrentUser(user)
-          console.log(user.username)
+          // console.log(user.username)
           navigate('/home')
         }
       )}
@@ -56,8 +56,8 @@ const welcomeMessage = () => {
   }
   }
 
-  console.log(`/users/${gameSession? gameSession.host_user_id : null}/joingame/${gameSession? gameSession.game_key : null}/game`)
-  console.log(gameSession)
+  // console.log(`/users/${gameSession? gameSession.host_user_id : null}/joingame/${gameSession? gameSession.game_key : null}/game`)
+  // console.log(gameSession)
 
   return (
     <>
@@ -65,7 +65,7 @@ const welcomeMessage = () => {
     <p>Welcome {`${welcomeMessage()}`}</p>
     <NavBar currentUser={currentUser} handleLogOut={handleLogOut}/>
     <Routes>
-      <Route path='/home' element={<Welcome currentUser={currentUser}/>}/>
+      <Route path='/home' element={<Welcome currentUser={currentUser} guestUser={guestUser}/>}/>
       <Route path='/signup' element={<SignUpForm setCurrentUser={setCurrentUser}/>}/>
       <Route path='/login' element={<LogInForm setCurrentUser={setCurrentUser}/>}/>
       <Route path='/hostgame' element={<CreateOrJoinGame currentUser={currentUser} gameSession={gameSession} setGameSession={setGameSession} guestUser={guestUser} setGuestUser={setGuestUser}/>}/>
