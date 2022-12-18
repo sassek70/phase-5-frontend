@@ -1,12 +1,12 @@
 
 
-const Welcome = ({currentUser}) => {
+const Welcome = ({currentUser, guestUser}) => {
 
-    console.log(currentUser.username)
+    // console.log(currentUser.username)
     return (
         <>
         {currentUser?
-        <h2>{`Welcome ${currentUser.username}`}</h2>
+        <h2>{`Welcome ${currentUser? currentUser.username: guestUser}`}</h2>
         :
         <></>
         }

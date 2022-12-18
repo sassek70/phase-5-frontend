@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import consumer from "../cable"
 console.log(consumer)
 
@@ -10,26 +10,31 @@ const GameBoard = ({currentUser, gameSession, guestUser}) => {
         console.log(`Player: ${currentUser? currentUser.id : guestUser} changed the count to ${count}`)
     }
 
-// const updateCount = () => {
-    consumer.subscriptions.create({
-        channel: "GameSessionChannel",
-        username: `${currentUser? currentUser.id : guestUser}`,
-        game_key: `${gameSession.game_key}`,
-        count: `${count}`
-    },{
-        connected: () => console.log("connected"),
-        disconnected: () => console.log("disconnected"),
-        received: data => console.log("received", data)
-    })
-// }
-
+    useEffect(() => {
+            consumer.subscriptions.create({
+            channel: "GameSessionChannel",
+            // username: `${currentUser? currentUser.id : guestUser}`,
+            game_key: `${gameSession.game_key}`,
+        },{
+            connected: () => console.log("connected"),
+            disconnected: () => console.log("disconnected"),
+            received: data => setCount(data)
+        })
+    },[])
 
 
     const updateServer = () => {
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/increase_counter`)
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/increase_counter`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            },
+            body: JSON.stringify({game_key: gameSession.game_key}),
+          })
         .then(res => { 
             if (res.ok) {
-            res.json().then(updatedCount => console.log(updatedCount))
+            res.json().then(updatedCount => setCount(updatedCount))
             }
         })
     }

@@ -65,7 +65,7 @@ const welcomeMessage = () => {
     <p>Welcome {`${welcomeMessage()}`}</p>
     <NavBar currentUser={currentUser} handleLogOut={handleLogOut}/>
     <Routes>
-      <Route path='/home' element={<Welcome currentUser={currentUser}/>}/>
+      <Route path='/home' element={<Welcome currentUser={currentUser} guestUser={guestUser}/>}/>
       <Route path='/signup' element={<SignUpForm setCurrentUser={setCurrentUser}/>}/>
       <Route path='/login' element={<LogInForm setCurrentUser={setCurrentUser}/>}/>
       <Route path='/hostgame' element={<CreateOrJoinGame currentUser={currentUser} gameSession={gameSession} setGameSession={setGameSession} guestUser={guestUser} setGuestUser={setGuestUser}/>}/>
