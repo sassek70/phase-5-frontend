@@ -70,7 +70,7 @@ const welcomeMessage = () => {
       <Route path='/login' element={<LogInForm setCurrentUser={setCurrentUser}/>}/>
       <Route path='/hostgame' element={<CreateOrJoinGame currentUser={currentUser} gameSession={gameSession} setGameSession={setGameSession} guestUser={guestUser} setGuestUser={setGuestUser}/>}/>
       {/* <Route path={`/users/${currentUser? currentUser.id : guestUser}/joingame/${gameSession? gameSession.game_key : null}`} element={<GameBoard currentUser={currentUser} gameSession={gameSession}/>}/> */}
-      <Route path={`/users/${gameSession? gameSession.host_user_id : null}/game/${gameSession? gameSession.game_key : null}`} element={<GameBoard currentUser={currentUser} gameSession={gameSession} guestUser={guestUser}/>}/>
+      <Route path={`/game/${gameSession? gameSession.game_key : null}`} element={<GameBoard currentUser={currentUser} gameSession={gameSession} guestUser={guestUser}/>}/>
     </Routes>
     </>
   );

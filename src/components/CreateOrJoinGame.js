@@ -37,7 +37,7 @@ const CreateOrJoinGame = ({currentUser, setGameSession, guestUser, setGuestUser,
     const handleSubmit = (e) => {
         e.preventDefault()
 
-          fetch(`${process.env.REACT_APP_BACKEND_URL}/users/${currentUser? currentUser.id : guestUser}/joingame/${formData.gameKey}`,{
+          fetch(`${process.env.REACT_APP_BACKEND_URL}/joingame/${formData.gameKey}`,{
             method: "PATCH",
             headers: {
               "Content-Type": "application/json",
@@ -47,9 +47,9 @@ const CreateOrJoinGame = ({currentUser, setGameSession, guestUser, setGuestUser,
           .then(res => {if (res.ok) {
             res.json()
           .then(existingGame => {
-            console.log(`/users/${existingGame.host_user_id}/game/${formData.gameKey}`)
+            console.log(`/game/${formData.gameKey}`)
             setGameSession(existingGame)
-            navigate(`/users/${existingGame.host_user_id}/game/${existingGame.game_key}`)
+            navigate(`/game/${existingGame.game_key}`)
           })
           } else {
           
@@ -80,7 +80,7 @@ const CreateOrJoinGame = ({currentUser, setGameSession, guestUser, setGuestUser,
         }
 
     const startGame = () => {
-      navigate(`/users/${gameSession.host_user_id}/game/${gameKey}`)
+      navigate(`/game/${gameKey}`)
     } 
 
     // console.log(gameSession, gameKey)

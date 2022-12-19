@@ -4,6 +4,7 @@ console.log(consumer)
 
 const GameBoard = ({currentUser, gameSession, guestUser}) => {
     const [count, setCount] = useState(0)
+    const [playerCards, setPlayerCards] = useState([])
     
     const counterTest = () => {
         setCount((count) => count + 1)
@@ -20,8 +21,33 @@ const GameBoard = ({currentUser, gameSession, guestUser}) => {
             disconnected: () => console.log("disconnected"),
             received: data => setCount(data)
         })
+
+
+        createPlayerCards()
     },[])
 
+
+    const createPlayerCards = () => {
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/create_random_deck`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({
+                player_id: currentUser? currentUser.id : guestUser,
+                game_key: gameSession.game_key
+            })
+        })
+        .then(res => {if (res.ok) {
+            res.json()
+            .then(playerDeck => console.log(playerDeck))
+        } else {
+            res.json().then(errors => console.log(errors))
+        }
+    })
+
+    }
 
     const updateServer = () => {
         fetch(`${process.env.REACT_APP_BACKEND_URL}/increase_counter`, {
