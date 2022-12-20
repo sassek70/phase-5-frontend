@@ -31,7 +31,6 @@ function App() {
         res.json()
         .then(user => {
           setCurrentUser(user)
-          // console.log(user.username)
           navigate('/home')
         }
       )}

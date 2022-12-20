@@ -2,7 +2,18 @@ body {
 background-color: rgba(0, 106, 138, 0.938);
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+
+.player-card {
+  /* display: flex; */
+  border: 2px solid black;
+  margin: auto;
+
+}
+
+.player-table {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+
+
 }

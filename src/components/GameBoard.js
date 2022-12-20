@@ -1,10 +1,15 @@
 import { useEffect, useState } from "react"
 import consumer from "../cable"
+import uuid from "react-uuid"
+import Card from "./Card"
+
 console.log(consumer)
 
 const GameBoard = ({currentUser, gameSession, guestUser}) => {
     const [count, setCount] = useState(0)
-    const [playerCards, setPlayerCards] = useState([])
+    const [gameCards, setGameCards] = useState([])
+    const [hostPlayerCards, setHostPlayerCards] = useState([])
+    const [opponentPlayerCards, setOpponentPlayerCards] = useState([])
     
     const counterTest = () => {
         setCount((count) => count + 1)
@@ -41,13 +46,17 @@ const GameBoard = ({currentUser, gameSession, guestUser}) => {
         })
         .then(res => {if (res.ok) {
             res.json()
-            .then(playerDeck => console.log(playerDeck))
+            .then(gameDeck => setGameCards((gameCards) => ([...gameCards, gameDeck])))
         } else {
             res.json().then(errors => console.log(errors))
         }
     })
 
     }
+    console.log(gameCards)
+
+
+
 
     const updateServer = () => {
         fetch(`${process.env.REACT_APP_BACKEND_URL}/increase_counter`, {
@@ -65,6 +74,11 @@ const GameBoard = ({currentUser, gameSession, guestUser}) => {
         })
     }
 
+    // let displayPlayerCards = playerCards.map((card) => {
+    //     const {cardName, cardPower, cardDefense, cardCost, cardDescription} = card
+    //     return (<Card key={uuid()} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription}/>)
+    // })
+
     return (
         <>
         <h2>Game Board</h2>
@@ -73,6 +87,13 @@ const GameBoard = ({currentUser, gameSession, guestUser}) => {
         <h3>{gameSession.game_key}</h3>
         <button onClick={()=>updateServer()}>Add one to count</button>
         <p>Count: {count}</p>
+        <div className="player-table">
+            {/* {playerCards? displayPlayerCards.slice(0,5): <></>} */}
+        </div>
+        <div>BREAK BREAK BREAK BREA</div>
+        <div>
+            {/* {displayPlayerCards} */}
+        </div>
 
 
         </>
