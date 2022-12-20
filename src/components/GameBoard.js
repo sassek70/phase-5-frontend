@@ -5,17 +5,14 @@ import Card from "./Card"
 
 console.log(consumer)
 
-const GameBoard = ({currentUser, gameSession, guestUser}) => {
+const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
     const [count, setCount] = useState(0)
     const [gameCards, setGameCards] = useState([])
-    const [hostPlayerCards, setHostPlayerCards] = useState([])
-    const [opponentPlayerCards, setOpponentPlayerCards] = useState([])
+    const [playerOne, setPlayerOne] = useState()
+    const [playerTwo, setPlayerTwo] = useState()
+    // const [hostPlayerCards, setHostPlayerCards] = useState([])
+    // const [opponentPlayerCards, setOpponentPlayerCards] = useState([])
     
-    const counterTest = () => {
-        setCount((count) => count + 1)
-        console.log(`Player: ${currentUser? currentUser.id : guestUser} changed the count to ${count}`)
-    }
-
     useEffect(() => {
             consumer.subscriptions.create({
             channel: "GameSessionChannel",
@@ -24,7 +21,17 @@ const GameBoard = ({currentUser, gameSession, guestUser}) => {
         },{
             connected: () => console.log("connected"),
             disconnected: () => console.log("disconnected"),
-            received: data => setCount(data)
+            received: data => {
+                const {count, game} = data
+                if (game) {
+                    setGameSession(game)
+                    console.log(game)
+                    setPlayerOne(game.host_user_id)
+                    setPlayerTwo(game.opponent_id)
+                    console.log(`Player 1: ${game.host_user_id}, Player 2: ${game.opponent_id}`)
+                }
+                setCount(count)
+            }
         })
 
 
@@ -41,19 +48,21 @@ const GameBoard = ({currentUser, gameSession, guestUser}) => {
             },
             body: JSON.stringify({
                 player_id: currentUser? currentUser.id : guestUser,
-                game_key: gameSession.game_key
+                game_id: gameSession.id
             })
         })
         .then(res => {if (res.ok) {
             res.json()
-            .then(gameDeck => setGameCards((gameCards) => ([...gameCards, gameDeck])))
-        } else {
+            .then(gameDeck => {setGameCards(gameDeck)
+            console.log(gameDeck[0].card.cardName)})
+        } else { 
             res.json().then(errors => console.log(errors))
         }
     })
 
     }
-    console.log(gameCards)
+    // console.log(gameCards[0].card.cardName)
+    // console.log(gameSession)
 
 
 
@@ -74,10 +83,10 @@ const GameBoard = ({currentUser, gameSession, guestUser}) => {
         })
     }
 
-    // let displayPlayerCards = playerCards.map((card) => {
-    //     const {cardName, cardPower, cardDefense, cardCost, cardDescription} = card
-    //     return (<Card key={uuid()} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription}/>)
-    // })
+    let displayGameCards = gameCards.map((card) => {
+        const {cardName, cardPower, cardDefense, cardCost, cardDescription} = card.card
+        return (<Card key={uuid()} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription}/>)
+    })
 
     return (
         <>
@@ -87,12 +96,15 @@ const GameBoard = ({currentUser, gameSession, guestUser}) => {
         <h3>{gameSession.game_key}</h3>
         <button onClick={()=>updateServer()}>Add one to count</button>
         <p>Count: {count}</p>
-        <div className="player-table">
-            {/* {playerCards? displayPlayerCards.slice(0,5): <></>} */}
-        </div>
-        <div>BREAK BREAK BREAK BREA</div>
-        <div>
-            {/* {displayPlayerCards} */}
+        <div className="game-table">
+            <div className="opponent-table">
+                <img alt="oppenent card"/>
+                <img alt="oppenent card"/>
+                <img alt="oppenent card"/>
+            </div>
+            <div className="player-table">
+                {gameCards? displayGameCards : <></>}
+            </div>
         </div>
 
 

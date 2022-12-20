@@ -37,12 +37,13 @@ const CreateOrJoinGame = ({currentUser, setGameSession, guestUser, setGuestUser,
     const handleSubmit = (e) => {
         e.preventDefault()
 
+
           fetch(`${process.env.REACT_APP_BACKEND_URL}/joingame/${formData.gameKey}`,{
             method: "PATCH",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({opponent_id: guestUser}),
+            body: JSON.stringify({opponent_id: currentUser? currentUser.id : guestUser}),
           })
           .then(res => {if (res.ok) {
             res.json()
