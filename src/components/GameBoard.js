@@ -3,17 +3,19 @@ import consumer from "../cable"
 import uuid from "react-uuid"
 import Card from "./Card"
 
-console.log(consumer)
+// console.log(consumer)
 
 const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
     const [count, setCount] = useState(0)
     const [gameCards, setGameCards] = useState([])
-    const [playerOne, setPlayerOne] = useState()
+    const [isConnected, setIsConnected] = useState(false)
+    const [dataStore, setDataStore] = useState({})
+    // const [playerOne, setPlayerOne] = useState()
     // const [playerOneCards, setPlayerOneCards] = useState([])
-    const [playerTwo, setPlayerTwo] = useState()
+    // const [playerTwo, setPlayerTwo] = useState()
     // const [playerTwoCards, setPlayerTwoCards] = useState([])
-    const [playerTurnObj, setPlayerTurnObj] = useState()
-    const [playedCards, setPlayedCards] = useState()
+    // const [playerTurnObj, setPlayerTurnObj] = useState()
+    // const [playedCards, setPlayedCards] = useState()
 
     // const [hostPlayerCards, setHostPlayerCards] = useState([])
     // const [opponentPlayerCards, setOpponentPlayerCards] = useState([])
@@ -26,8 +28,12 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         },{
             connected: () => {
                 console.log("connected")
+                setIsConnected(true)
             },
-            disconnected: () => console.log("disconnected"),
+            disconnected: () => {
+                console.log("disconnected")
+                setIsConnected(false)
+            },
             received: (data) => {
             // handleData(data)
                 // const {count, game, game_cards} = data
@@ -36,43 +42,38 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                         setCount(data.count);
                         break;
                     case "all-cards":
-                        // setGameCards(data.game_cards)
-                        console.log(data.game_cards)
+                        // debugger
+                        // setGameCards(gameCards => [...gameCards, ...data.game_cards])
+                        updateDataStore('userCard', data.game_cards)
+                        // console.log(data)
                         break;
                 }
             }
         })
-
-
-                // if (game) {
-                //         setGameSession(game)
-                //         console.log(game)
-                //         setPlayerOne(game.host_user_id)
-                //         setPlayerTwo(game.opponent_id)
-                //         console.log(`Player 1: ${game.host_user_id}, Player 2: ${game.opponent_id}`);
-                        // getGameCards()
-                // }
-                        // break;
-                    // case game_cards:
-                    //         getGameCards()
-                    // case(count):
-                    // else if (count) {
-                    //     setCount(data.count)
-                    // } 
-                    // else if (game_cards)
-                    //     console.log(game_cards)
-                    //     setGameCards(game_cards)
-                        // break;
-                // setCount(data.count)
-                // }})
-            // })
-                    // console.log("Player has joined the game")    
-        getGameCards()
-        createPlayerCards()
-
+            
+        // getGameCards()
+        
     },[gameSession])
+    
+    useEffect(() => {
+        if (!isConnected) {
+            return
+        }
+        createPlayerCards()
+        
+    },[isConnected])
 
-
+    const updateDataStore = (modelName, models) => {
+        // const copiedDataStore = {...dataStore}
+        // copiedDataStore[modelName] = copiedDataStore[modelName] ?? {}
+        // models.forEach(model => copiedDataStore[modelName][model.id] = model)
+        setDataStore(dataStore => {
+            const copiedDataStore = {...dataStore}
+            copiedDataStore[modelName] = copiedDataStore[modelName] ?? {}
+            models.forEach(model => copiedDataStore[modelName][model.id] = model)
+            return copiedDataStore
+        })
+    }
     // const handleData = (data) => {
     //     // console.log(data)
     //     const {count, game, game_cards} = data
@@ -105,42 +106,45 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                 game_id: gameSession.id
             })
         })
-        .then(res => {if (res.ok) {
-            res.json()
-            .then(gameDeck => {
-            // console.log(gameDeck[0].card.cardName)
-            setGameCards(gameDeck)})
-        } else { 
-            res.json().then(errors => console.log(errors))
-        }
-    })
+        .then(res => {
+            if (res.ok) {
+                res.json()
+                .then(game_cards => {
+                    updateDataStore('userCard', game_cards)
+                })
+            } else { 
+                res.json().then(errors => console.log(errors))
+            }
+        })
     }
 
     const getGameCards = () => {
-        console.log(gameSession)
+        // console.log(gameSession)
+        // debugger
         fetch (`${process.env.REACT_APP_BACKEND_URL}/${gameSession.id}/game_cards`)
-        .then( res => {if (res.ok) {
-            res.json()
-            .then(sessionCards => {
-                setGameCards(sessionCards)
-                console.log(sessionCards)})
-                // sessionCards.map((card) => {
-                //     console.log(card.user_id) 
-                //     console.log(card)
-                //     if (card.user_id === gameSession.host_user_id){
-                //         // setPlayerOneCards((playerOneCards) => [...playerOneCards, card])
-                //         console.log(`player1 card ${card.card}`)
-                //     } else {
-                //         // setPlayerTwoCards((playerTwoCards) => [...playerTwoCards, card])
-                //         console.log(`player2 card ${card}`)
+        // .then( res => {if (res.ok) {
+        //     res.json()
+        //     .then(sessionCards => {
+        //         // setGameCards(sessionCards)
+        //         // console.log(sessionCards)})
+        //         // sessionCards.map((card) => {
+        //         //     console.log(card.user_id) 
+        //         //     console.log(card)
+        //         //     if (card.user_id === gameSession.host_user_id){
+        //         //         // setPlayerOneCards((playerOneCards) => [...playerOneCards, card])
+        //         //         console.log(`player1 card ${card.card}`)
+        //         //     } else {
+        //         //         // setPlayerTwoCards((playerTwoCards) => [...playerTwoCards, card])
+        //         //         console.log(`player2 card ${card}`)
 
-                //     }
-                // })
-            // })
-        }else {
-            res.json().then(errors => console.log(errors))
-        }}
-        )}
+        //         //     }
+        //         // })
+        //     // })
+        // }else {
+        //     res.json().then(errors => console.log(errors))
+        // }}
+        // )}
+    }
 
 
     // console.log(`Player 1: ${playerOneCards}`)
@@ -173,18 +177,19 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
             player = guestUser
         }
 
-        console.log({
-            player_id: player,
-            card_id:selectedCardId,
-            power: selectedCardPower,
-            defense: selectedCardDefense
-        })
+        // console.log({
+        //     player_id: player,
+        //     card_id:selectedCardId,
+        //     power: selectedCardPower,
+        //     defense: selectedCardDefense
+        // })
     }
     
-    let filteredHostGameCards = gameCards.filter((card) => card.user_id === gameSession.host_user_id? card : null)
-    let filteredOpponentGameCards = gameCards.filter((card) => card.user_id === gameSession.opponent_id? card : null)
+    let filteredHostGameCards = Object.values(dataStore.userCard ?? {}).filter((card) => card.user_id === gameSession.host_user_id ? card : null)
+    let filteredOpponentGameCards = Object.values(dataStore.userCard ?? {}).filter((card) => card.user_id !== gameSession.host_user_id ? card : null)
 
     let displayHostGameCards = filteredHostGameCards.map((card) => {
+        // debugger
         const {id, cardName, cardPower, cardDefense, cardCost, cardDescription} = card.card
         return (
                 <Card key={uuid()} id={id} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} cardSelect={cardSelect}/>
@@ -192,6 +197,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
     })
 
     let displayOpponentGameCards = filteredOpponentGameCards.map((card) => {
+        // debugger
         const {id, cardName, cardPower, cardDefense, cardCost, cardDescription} = card.card
         return (
                 <Card key={uuid()} id={id} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} cardSelect={cardSelect}/>
@@ -210,10 +216,12 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         <p>Count: {count}</p>
         <div className="game-table">
             <div className="opponent-table">
-                {/* {getGameCards} */}
+                <p>Oppenent's cards</p>
+                {currentUser.id === gameSession.host_user_id ? displayOpponentGameCards : displayHostGameCards}
             </div>
             <div className="player-table">
-                {currentUser.id === gameSession.host_user_id? displayHostGameCards : displayOpponentGameCards}
+            <p>Current Player's cards</p>
+            {currentUser.id === gameSession.host_user_id ? displayHostGameCards : displayOpponentGameCards}
             </div>
         </div>
 
