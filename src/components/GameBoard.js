@@ -25,39 +25,51 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
             game_key: `${gameSession.game_key}`,
         },{
             connected: () => {
-                createPlayerCards()
                 console.log("connected")
             },
             disconnected: () => console.log("disconnected"),
             received: (data) => {
             // handleData(data)
-                const {count, game, game_cards} = data
-                // switch(game) {
-                //     case game:
-                if (game) {
-                        setGameSession(game)
-                        console.log(game)
-                        setPlayerOne(game.host_user_id)
-                        setPlayerTwo(game.opponent_id)
-                        console.log(`Player 1: ${game.host_user_id}, Player 2: ${game.opponent_id}`);
-                        // getGameCards()
+                // const {count, game, game_cards} = data
+                switch(data.action) {
+                    case "counter":
+                        setCount(data.count);
+                        break;
+                    case "all-cards":
+                        // setGameCards(data.game_cards)
+                        console.log(data.game_cards)
+                        break;
                 }
+            }
+        })
+
+
+                // if (game) {
+                //         setGameSession(game)
+                //         console.log(game)
+                //         setPlayerOne(game.host_user_id)
+                //         setPlayerTwo(game.opponent_id)
+                //         console.log(`Player 1: ${game.host_user_id}, Player 2: ${game.opponent_id}`);
+                        // getGameCards()
+                // }
                         // break;
                     // case game_cards:
                     //         getGameCards()
                     // case(count):
-                    else if (count) {
-                        setCount(data.count)
-                    } 
+                    // else if (count) {
+                    //     setCount(data.count)
+                    // } 
                     // else if (game_cards)
                     //     console.log(game_cards)
                     //     setGameCards(game_cards)
                         // break;
-                setCount(data.count)
-                }})
+                // setCount(data.count)
+                // }})
             // })
                     // console.log("Player has joined the game")    
         getGameCards()
+        createPlayerCards()
+
     },[gameSession])
 
 
@@ -147,11 +159,11 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
             },
             body: JSON.stringify({game_key: gameSession.game_key}),
           })
-        .then(res => { 
-            if (res.ok) {
-            res.json().then(updatedCount => setCount(updatedCount))
-            }
-        })
+        // .then(res => { 
+        //     if (res.ok) {
+        //     res.json().then(updatedCount => setCount(updatedCount))
+        //     }
+        // })
     }
     const cardSelect = (selectedCardId, selectedCardPower, selectedCardDefense) => {
         let player 
