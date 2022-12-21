@@ -42,18 +42,14 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                         setCount(data.count);
                         break;
                     case "all-cards":
-                        // debugger
-                        // setGameCards(gameCards => [...gameCards, ...data.game_cards])
+
                         updateDataStore('userCard', data.game_cards)
                         // console.log(data)
                         break;
                 }
             }
-        })
-            
-        // getGameCards()
-        
-    },[gameSession])
+        })        
+    },[])
     
     useEffect(() => {
         if (!isConnected) {
@@ -74,25 +70,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
             return copiedDataStore
         })
     }
-    // const handleData = (data) => {
-    //     // console.log(data)
-    //     const {count, game, game_cards} = data
-    //     if (count){
-    //         setCount(data.count)
-    //     } else if (game) {
-    //         setGameSession(game)
-    //         console.log(game)
-    //         // setPlayerOne(game.host_user_id)
-    //         // setPlayerTwo(game.opponent_id)
-    //         console.log(`Player 1: ${game.host_user_id}, Player 2: ${game.opponent_id}`);
-    //         getGameCards()
 
-    //     } 
-    //     // else if (gameCards) {
-    //         // getGameCards()
-    //     // }
-
-    // }
 
     const createPlayerCards = () => {
         fetch(`${process.env.REACT_APP_BACKEND_URL}/create_random_deck`, {
@@ -215,11 +193,11 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         <button onClick={()=>updateServer()}>Add one to count</button>
         <p>Count: {count}</p>
         <div className="game-table">
-            <div className="opponent-table">
+            <div className="card-table">
                 <p>Oppenent's cards</p>
                 {currentUser.id === gameSession.host_user_id ? displayOpponentGameCards : displayHostGameCards}
             </div>
-            <div className="player-table">
+            <div className="card-table">
             <p>Current Player's cards</p>
             {currentUser.id === gameSession.host_user_id ? displayHostGameCards : displayOpponentGameCards}
             </div>

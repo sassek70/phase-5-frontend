@@ -10,10 +10,11 @@ background-color: rgba(0, 106, 138, 0.938);
 
 }
 
-.player-table {
+.card-table {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
 
 
 }
+
