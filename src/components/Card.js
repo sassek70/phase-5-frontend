@@ -1,7 +1,7 @@
 
 
 
-const Card = ({cardName, cardPower, cardDefense, cardCost, cardDescription, cardSelect, id}) => {
+const Card = ({cardName, cardPower, cardDefense, cardCost, cardDescription, cardSelect, id, activeTurn}) => {
 
 
     return (
@@ -11,8 +11,11 @@ const Card = ({cardName, cardPower, cardDefense, cardCost, cardDescription, card
             <p>{cardDescription}</p>
             <p>{cardPower}/{cardDefense}</p>
             <div>
+                {activeTurn?
                 <button>Attack</button>
+                :
                 <button>Defend</button>
+            }
             </div>
         </div>
     )

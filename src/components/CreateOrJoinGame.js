@@ -89,16 +89,20 @@ const CreateOrJoinGame = ({currentUser, setGameSession, guestUser, setGuestUser,
 
     return (
         <>
+        {currentUser?
+        <>
             <form onSubmit={handleSubmit}>
                 <label htmlFor="username">Enter a Game Key:</label>
                 <input type="text" value={formData.gameKey} name="gameKey" placeholder="Enter a Game Key" onChange={handleChange}></input>
 
                 <button type="submit">Join!</button>
             </form>            
-        {currentUser?
             <button onClick={()=>handleClick()}>Generate Game Key</button>
+        </>
          :
-         <></>
+         <>
+         <p>You must be logged in to play</p>
+         </>
         }
         {gameKey}
         {gameKey?

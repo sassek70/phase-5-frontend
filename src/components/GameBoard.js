@@ -10,7 +10,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
     const [gameCards, setGameCards] = useState([])
     const [isConnected, setIsConnected] = useState(false)
     const [dataStore, setDataStore] = useState({})
-    // const [playerOne, setPlayerOne] = useState()
+    const [activeTurn, setActiveTurn] = useState(false)
     // const [playerOneCards, setPlayerOneCards] = useState([])
     // const [playerTwo, setPlayerTwo] = useState()
     // const [playerTwoCards, setPlayerTwoCards] = useState([])
@@ -23,7 +23,6 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
     useEffect(() => {
             consumer.subscriptions.create({
             channel: "GameSessionChannel",
-            // username: `${currentUser? currentUser.id : guestUser}`,
             game_key: `${gameSession.game_key}`,
         },{
             connected: () => {
@@ -42,9 +41,11 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                         setCount(data.count);
                         break;
                     case "all-cards":
-
                         updateDataStore('userCard', data.game_cards)
                         // console.log(data)
+                        break;
+                    case "user-joined":
+                        setGameSession(data.game)
                         break;
                 }
             }
@@ -54,6 +55,10 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
     useEffect(() => {
         if (!isConnected) {
             return
+        }
+
+        if (gameSession.host_user_id === currentUser.id) {
+            setActiveTurn(true)
         }
         createPlayerCards()
         
@@ -80,7 +85,8 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                 "Accept": "application/json"
             },
             body: JSON.stringify({
-                player_id: currentUser? currentUser.id : guestUser,
+                // player_id: currentUser? currentUser.id : guestUser,
+                player_id: currentUser.id,
                 game_id: gameSession.id
             })
         })
@@ -148,19 +154,19 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         // })
     }
     const cardSelect = (selectedCardId, selectedCardPower, selectedCardDefense) => {
-        let player 
-        if (currentUser && (gameSession.host_user_id === currentUser.id || gameSession.opponent_id === currentUser.id)) {
-            player = currentUser.id
-        } else if (gameSession.opponent_id === guestUser){
-            player = guestUser
-        }
+        // let player 
+        // if (currentUser && (gameSession.host_user_id === currentUser.id || gameSession.opponent_id === currentUser.id)) {
+        //     player = currentUser.id
+        // } else if (gameSession.opponent_id === guestUser){
+        //     player = guestUser
+        // }
 
-        // console.log({
-        //     player_id: player,
-        //     card_id:selectedCardId,
-        //     power: selectedCardPower,
-        //     defense: selectedCardDefense
-        // })
+        console.log({
+            player_id: currentUser.id,
+            card_id:selectedCardId,
+            power: selectedCardPower,
+            defense: selectedCardDefense
+        })
     }
     
     let filteredHostGameCards = Object.values(dataStore.userCard ?? {}).filter((card) => card.user_id === gameSession.host_user_id ? card : null)
@@ -170,7 +176,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         // debugger
         const {id, cardName, cardPower, cardDefense, cardCost, cardDescription} = card.card
         return (
-                <Card key={uuid()} id={id} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} cardSelect={cardSelect}/>
+                <Card key={uuid()} id={id} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} cardSelect={cardSelect} activeTurn={activeTurn}/>
         )
     })
 
@@ -178,7 +184,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         // debugger
         const {id, cardName, cardPower, cardDefense, cardCost, cardDescription} = card.card
         return (
-                <Card key={uuid()} id={id} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} cardSelect={cardSelect}/>
+                <Card key={uuid()} id={id} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} cardSelect={cardSelect} activeTurn={activeTurn}/>
         )
     })
 
@@ -187,15 +193,21 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
     return (
         <>
         <h2>Game Board</h2>
-        <h3>{`Player 1: ${currentUser? currentUser.username : guestUser}`}</h3>
-        <h3>{gameSession.opponent_id}</h3>
-        <h3>{gameSession.game_key}</h3>
+        {/* <h3>{`Player 1: ${currentUser? currentUser.username : guestUser}`}</h3> */}
+        <h3>{`Player 1: ${currentUser.username}`}</h3>
+        <h3>{`Player 2: ${gameSession.opponent_id}`}</h3>
+        <p>{`Game-key: ${gameSession.game_key}`}</p>
+        {activeTurn?
+            <p>Your turn</p>
+            :
+            <p>Oppenent's turn</p>
+        } 
         <button onClick={()=>updateServer()}>Add one to count</button>
         <p>Count: {count}</p>
         <div className="game-table">
             <div className="card-table">
                 <p>Oppenent's cards</p>
-                {currentUser.id === gameSession.host_user_id ? displayOpponentGameCards : displayHostGameCards}
+                {gameSession.opponent_id? (currentUser.id === gameSession.host_user_id ? displayOpponentGameCards : displayHostGameCards) : <p>Waiting for opponent to join</p>}
             </div>
             <div className="card-table">
             <p>Current Player's cards</p>
