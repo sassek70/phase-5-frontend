@@ -11,11 +11,10 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
     const [isConnected, setIsConnected] = useState(false)
     const [dataStore, setDataStore] = useState({})
     const [activeTurn, setActiveTurn] = useState(false)
-    // const [playerOneCards, setPlayerOneCards] = useState([])
-    // const [playerTwo, setPlayerTwo] = useState()
-    // const [playerTwoCards, setPlayerTwoCards] = useState([])
-    // const [playerTurnObj, setPlayerTurnObj] = useState()
-    // const [playedCards, setPlayedCards] = useState()
+    const [chosenCard, setChosenCard] = useState()
+    const [isAttacking, setIsAttacking] = useState(false)
+    const [hostHealth, setHostHealth] = useState(gameSession.host_player_health)
+    const [opponentHealth, setOpponentHealth] = useState(gameSession.opponent_player_health)
 
     // const [hostPlayerCards, setHostPlayerCards] = useState([])
     // const [opponentPlayerCards, setOpponentPlayerCards] = useState([])
@@ -47,6 +46,18 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                     case "user-joined":
                         setGameSession(data.game)
                         break;
+                    case "attack-declared":
+                        console.log(data)
+                        break;
+                    case "defense-declared":
+                        console.log(data)
+                        break;
+                    case "combat-result":
+                        setActiveTurn(!activeTurn)
+                        setIsAttacking(!isAttacking)
+                        console.log(data)
+                        break;
+
                 }
             }
         })        
@@ -59,6 +70,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
 
         if (gameSession.host_user_id === currentUser.id) {
             setActiveTurn(true)
+            setIsAttacking(true)
         }
         createPlayerCards()
         
@@ -153,20 +165,27 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         //     }
         // })
     }
-    const cardSelect = (selectedCardId, selectedCardPower, selectedCardDefense) => {
-        // let player 
-        // if (currentUser && (gameSession.host_user_id === currentUser.id || gameSession.opponent_id === currentUser.id)) {
-        //     player = currentUser.id
-        // } else if (gameSession.opponent_id === guestUser){
-        //     player = guestUser
-        // }
+    const selectedCard = (selectedCardId, selectedCardPower, selectedCardDefense, selectedCardUserId) => {
+        if (activeTurn === true && selectedCardUserId === currentUser.id) {
+            let card = {
+                player_id: currentUser.id,
+                card_id: selectedCardId,
+                power: selectedCardPower,
+                defense: selectedCardDefense,
+                user_id: selectedCardUserId,
+                game_id: gameSession.id
+            }
+            console.log({
+                player_id: currentUser.id,
+                card_id:selectedCardId,
+                power: selectedCardPower,
+                defense: selectedCardDefense,
+                user_id: selectedCardUserId,
+                game_id: gameSession.id
 
-        console.log({
-            player_id: currentUser.id,
-            card_id:selectedCardId,
-            power: selectedCardPower,
-            defense: selectedCardDefense
-        })
+            })
+            setChosenCard(card)
+        }
     }
     
     let filteredHostGameCards = Object.values(dataStore.userCard ?? {}).filter((card) => card.user_id === gameSession.host_user_id ? card : null)
@@ -176,7 +195,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         // debugger
         const {id, cardName, cardPower, cardDefense, cardCost, cardDescription} = card.card
         return (
-                <Card key={uuid()} id={id} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} cardSelect={cardSelect} activeTurn={activeTurn}/>
+                <Card key={uuid()} id={id} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} selectedCard={selectedCard} activeTurn={activeTurn} user_id={card.user_id} chosenCard={chosenCard}/>
         )
     })
 
@@ -184,9 +203,27 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         // debugger
         const {id, cardName, cardPower, cardDefense, cardCost, cardDescription} = card.card
         return (
-                <Card key={uuid()} id={id} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} cardSelect={cardSelect} activeTurn={activeTurn}/>
+                <Card key={uuid()} id={id} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} selectedCard={selectedCard} activeTurn={activeTurn} user_id={card.user_id} chosenCard={chosenCard}/>
         )
     })
+
+    const submitPlayerAction = () => {
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.id}/player_actions/attack`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(chosenCard)
+        })
+        .then(res => {
+            if (res.ok) {
+                res.json().then(response => console.log(response))
+            } else {
+                res.json().then(errors => console.log(errors))
+            }
+        })
+    }
 
 
 
@@ -211,8 +248,10 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
             </div>
             <div className="card-table">
             <p>Current Player's cards</p>
+            {activeTurn? <p>Choose a card to {`${isAttacking? "attack" : "defend"}`} with</p> : <p>Waiting for opponent's action</p>}
             {currentUser.id === gameSession.host_user_id ? displayHostGameCards : displayOpponentGameCards}
             </div>
+            {chosenCard? <button onClick={() => submitPlayerAction()}>Confirm</button> : <></>}
         </div>
 
 

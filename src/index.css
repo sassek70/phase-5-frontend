@@ -7,14 +7,16 @@ background-color: rgba(0, 106, 138, 0.938);
   /* display: flex; */
   border: 2px solid black;
   margin: auto;
-
+}
+.chosen-player-card {
+  /* display: flex; */
+  border: 2px solid red;
+  margin: auto;
 }
 
 .card-table {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-
-
 }
 
