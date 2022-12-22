@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import consumer from "../cable"
 import uuid from "react-uuid"
 import Card from "./Card"
+import { act } from "react-dom/test-utils"
 
 // console.log(consumer)
 
@@ -47,15 +48,25 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                         setGameSession(data.game)
                         break;
                     case "attack-declared":
-                        console.log(data)
+                        console.log(data.message)
+                        setActiveTurn(activeTurn => !activeTurn)
+                        // setIsAttacking(isAttacking => !isAttacking)
                         break;
                     case "defense-declared":
-                        console.log(data)
+                        console.log(data.message)
                         break;
-                    case "combat-result":
-                        setActiveTurn(!activeTurn)
-                        setIsAttacking(!isAttacking)
-                        console.log(data)
+                    case "update-health":
+                        if(data.player === "host") {
+                            setHostHealth(data.health)
+                        } else {
+                            setOpponentHealth(data.health)
+                        }
+                    case "combat-results":
+                        setActiveTurn(activeTurn => !activeTurn)
+                        setIsAttacking(isAttacking => !isAttacking)
+                        setHostHealth(data.game)
+                        setChosenCard()
+                        console.log(data.message)
                         break;
 
                 }
@@ -114,41 +125,6 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         })
     }
 
-    const getGameCards = () => {
-        // console.log(gameSession)
-        // debugger
-        fetch (`${process.env.REACT_APP_BACKEND_URL}/${gameSession.id}/game_cards`)
-        // .then( res => {if (res.ok) {
-        //     res.json()
-        //     .then(sessionCards => {
-        //         // setGameCards(sessionCards)
-        //         // console.log(sessionCards)})
-        //         // sessionCards.map((card) => {
-        //         //     console.log(card.user_id) 
-        //         //     console.log(card)
-        //         //     if (card.user_id === gameSession.host_user_id){
-        //         //         // setPlayerOneCards((playerOneCards) => [...playerOneCards, card])
-        //         //         console.log(`player1 card ${card.card}`)
-        //         //     } else {
-        //         //         // setPlayerTwoCards((playerTwoCards) => [...playerTwoCards, card])
-        //         //         console.log(`player2 card ${card}`)
-
-        //         //     }
-        //         // })
-        //     // })
-        // }else {
-        //     res.json().then(errors => console.log(errors))
-        // }}
-        // )}
-    }
-
-
-    // console.log(`Player 1: ${playerOneCards}`)
-    // console.log(`Player 2: ${playerTwoCards}`)
-    // console.log(gameSession)
-
-
-
 
     const updateServer = () => {
         fetch(`${process.env.REACT_APP_BACKEND_URL}/increase_counter`, {
@@ -166,6 +142,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         // })
     }
     const selectedCard = (selectedCardId, selectedCardPower, selectedCardDefense, selectedCardUserId) => {
+        setChosenCard()
         if (activeTurn === true && selectedCardUserId === currentUser.id) {
             let card = {
                 player_id: currentUser.id,
@@ -173,6 +150,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                 power: selectedCardPower,
                 defense: selectedCardDefense,
                 user_id: selectedCardUserId,
+                // user_card_id: 
                 game_id: gameSession.id
             }
             console.log({
@@ -184,7 +162,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                 game_id: gameSession.id
 
             })
-            setChosenCard(card)
+            setChosenCard(chosenCard => card)
         }
     }
     
@@ -208,7 +186,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
     })
 
     const submitPlayerAction = () => {
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.id}/player_actions/attack`, {
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.id}/player_actions/${isAttacking ? "attack" : "combat"}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -217,11 +195,9 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
             body: JSON.stringify(chosenCard)
         })
         .then(res => {
-            if (res.ok) {
-                res.json().then(response => console.log(response))
-            } else {
+            if (!res.ok) {
                 res.json().then(errors => console.log(errors))
-            }
+            } 
         })
     }
 
@@ -244,10 +220,14 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         <div className="game-table">
             <div className="card-table">
                 <p>Oppenent's cards</p>
+                <p>Oppenent's health: {currentUser.id === gameSession.host_user_id ? opponentHealth : hostHealth}</p>
                 {gameSession.opponent_id? (currentUser.id === gameSession.host_user_id ? displayOpponentGameCards : displayHostGameCards) : <p>Waiting for opponent to join</p>}
             </div>
             <div className="card-table">
             <p>Current Player's cards</p>
+            <p>Your health: {currentUser.id === gameSession.host_user_id ? hostHealth : opponentHealth}</p>
+
+
             {activeTurn? <p>Choose a card to {`${isAttacking? "attack" : "defend"}`} with</p> : <p>Waiting for opponent's action</p>}
             {currentUser.id === gameSession.host_user_id ? displayHostGameCards : displayOpponentGameCards}
             </div>
