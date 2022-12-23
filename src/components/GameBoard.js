@@ -56,9 +56,9 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                         break;
                     case "update-health":
                         if(data.player === "host") {
-                            setHostHealth(data.health)
+                            setHostHealth((hostHealth) => data.health)
                         } else {
-                            setOpponentHealth(data.health)
+                            setOpponentHealth((opponentHealth) => data.health)
                         }
                         break;
                     case "update-cards":
