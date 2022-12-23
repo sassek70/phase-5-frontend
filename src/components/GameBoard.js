@@ -48,8 +48,8 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                         break;
                     case "attack-declared":
                         console.log(data.message)
-                        setActiveTurn(activeTurn => !activeTurn)
-                        // setIsAttacking(isAttacking => !isAttacking)
+                        // setActiveTurn(activeTurn => !activeTurn)
+                        setIsAttacking(isAttacking => !isAttacking)
                         break;
                     case "defense-declared":
                         console.log(data.message)
@@ -65,11 +65,16 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                         updateDataStore('userCard', data.game_cards)
                         console.log(data)
                         console.log(data.game_cards)
-                        console.log(data)
                         break;
                     case "combat-results":
-                        setActiveTurn((activeTurn) => !activeTurn)
-                        setIsAttacking((isAttacking) => !isAttacking)
+                        if (data.attacking_player === currentUser.id) {
+                            setActiveTurn((activeTurn) => false)
+                            setIsAttacking((isAttacking) => false)
+                        } else {
+                            setActiveTurn((activeTurn) => true)
+                            setIsAttacking((isAttacking) => true)
+                        }
+
                         // setHostHealth(data.game)
                         setChosenCard(chosenCard => {})
                         console.log(data.message)
@@ -95,9 +100,6 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
     },[isConnected])
 
     const updateDataStore = (modelName, models) => {
-        // const copiedDataStore = {...dataStore}
-        // copiedDataStore[modelName] = copiedDataStore[modelName] ?? {}
-        // models.forEach(model => copiedDataStore[modelName][model.id] = model)
         setDataStore(dataStore => {
             const copiedDataStore = {...dataStore}
             copiedDataStore[modelName] = copiedDataStore[modelName] ?? {}
@@ -105,19 +107,6 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
             return copiedDataStore
         })
     }
-
-    // const resultDataStore = (modelName, models) => {
-    //     // const copiedDataStore = {...dataStore}
-    //     // copiedDataStore[modelName] = copiedDataStore[modelName] ?? {}
-    //     // models.forEach(model => copiedDataStore[modelName][model.id] = model)
-    //     setDataStore(dataStore => {
-    //         const updatedDataStore = {...dataStore}
-    //         updatedDataStore[modelName] = updatedDataStore[modelName] ?? {}
-    //         models.forEach(model => updatedDataStore[modelName][model.id] = model)
-    //         return updateDataStore
-    //     })
-    // }
-
 
     const createPlayerCards = () => {
         fetch(`${process.env.REACT_APP_BACKEND_URL}/create_random_deck`, {
@@ -162,14 +151,13 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
     }
     const selectedCard = (selectedCardId, selectedCardPower, selectedCardDefense, selectedCardUserId) => {
         setChosenCard()
-        if (activeTurn === true && selectedCardUserId === currentUser.id) {
+        if (isAttacking === true && selectedCardUserId === currentUser.id) {
             let card = {
                 player_id: currentUser.id,
                 card_id: selectedCardId,
                 power: selectedCardPower,
                 defense: selectedCardDefense,
                 user_id: selectedCardUserId,
-                // user_card_id: 
                 game_id: gameSession.id
             }
             console.log({
@@ -204,8 +192,26 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         )
     })
 
-    const submitPlayerAction = () => {
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.id}/player_actions/${isAttacking ? "attack" : "combat"}`, {
+    const submitAttackAction = () => {
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.id}/player_actions/attack`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(chosenCard)
+        })
+        .then(res => {
+            if (!res.ok) {
+                res.json().then(errors => console.log(errors))
+            } 
+        })
+    }
+
+
+
+    const submitDefendAction = () => {
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.id}/player_actions/combat`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -227,8 +233,16 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         <h2>Game Board</h2>
         {/* <h3>{`Player 1: ${currentUser? currentUser.username : guestUser}`}</h3> */}
         <h3>{`Player 1: ${currentUser.username}`}</h3>
-        <h3>{`Player 2: ${gameSession.opponent_id}`}</h3>
-        <p>{`Game-key: ${gameSession.game_key}`}</p>
+        <h4>Health: {hostHealth}</h4>
+        {gameSession.opponent_id ? 
+            <>
+            <h3>{`Player 2: ${gameSession.opponent_id}`}</h3> 
+            <h4>Health:{opponentHealth}</h4> 
+            </>
+            : 
+            <h3>Waiting for opponent</h3>
+        }
+        {/* <p>{`Game-key: ${gameSession.game_key}`}</p> */}
         {activeTurn?
             <p>Your turn</p>
             :
@@ -247,10 +261,28 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
             <p>Your health: {currentUser.id === gameSession.host_user_id ? hostHealth : opponentHealth}</p>
 
 
-            {activeTurn? <p>Choose a card to {`${isAttacking? "attack" : "defend"}`} with</p> : <p>Waiting for opponent's action</p>}
+            {isAttacking ? 
+                activeTurn ? 
+                <p>Choose a card to attack with</p>
+                :
+                <p>Choose a card to defend with</p>
+            :
+                <p>Waiting for opponent's action</p>
+            }
             {currentUser.id === gameSession.host_user_id ? displayHostGameCards : displayOpponentGameCards}
             </div>
-            {chosenCard? <button onClick={() => submitPlayerAction()}>Confirm</button> : <></>}
+            {chosenCard ?
+                isAttacking ? 
+                    activeTurn ? 
+                    <button onClick={() => submitAttackAction()}>Confirm Attack</button> 
+                    :  
+                    <button onClick={() => submitDefendAction()}>Confirm Defense</button>
+                :
+                <></>
+            :
+            <></>
+            }
+
         </div>
 
 
