@@ -2,7 +2,6 @@ import { useEffect, useState } from "react"
 import consumer from "../cable"
 import uuid from "react-uuid"
 import Card from "./Card"
-import { act } from "react-dom/test-utils"
 
 // console.log(consumer)
 
@@ -42,7 +41,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                         break;
                     case "all-cards":
                         updateDataStore('userCard', data.game_cards)
-                        // console.log(data)
+                        console.log(data)
                         break;
                     case "user-joined":
                         setGameSession(data.game)
@@ -61,12 +60,20 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                         } else {
                             setOpponentHealth(data.health)
                         }
+                        break;
+                    case "update-cards":
+                        updateDataStore('userCard', data.game_cards)
+                        console.log(data)
+                        console.log(data.game_cards)
+                        console.log(data)
+                        break;
                     case "combat-results":
-                        setActiveTurn(activeTurn => !activeTurn)
-                        setIsAttacking(isAttacking => !isAttacking)
-                        setHostHealth(data.game)
-                        setChosenCard()
+                        setActiveTurn((activeTurn) => !activeTurn)
+                        setIsAttacking((isAttacking) => !isAttacking)
+                        // setHostHealth(data.game)
+                        setChosenCard(chosenCard => {})
                         console.log(data.message)
+                        console.log(data)
                         break;
 
                 }
@@ -98,6 +105,18 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
             return copiedDataStore
         })
     }
+
+    // const resultDataStore = (modelName, models) => {
+    //     // const copiedDataStore = {...dataStore}
+    //     // copiedDataStore[modelName] = copiedDataStore[modelName] ?? {}
+    //     // models.forEach(model => copiedDataStore[modelName][model.id] = model)
+    //     setDataStore(dataStore => {
+    //         const updatedDataStore = {...dataStore}
+    //         updatedDataStore[modelName] = updatedDataStore[modelName] ?? {}
+    //         models.forEach(model => updatedDataStore[modelName][model.id] = model)
+    //         return updateDataStore
+    //     })
+    // }
 
 
     const createPlayerCards = () => {
@@ -162,26 +181,26 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                 game_id: gameSession.id
 
             })
-            setChosenCard(chosenCard => card)
+            setChosenCard(card)
         }
     }
     
-    let filteredHostGameCards = Object.values(dataStore.userCard ?? {}).filter((card) => card.user_id === gameSession.host_user_id ? card : null)
-    let filteredOpponentGameCards = Object.values(dataStore.userCard ?? {}).filter((card) => card.user_id !== gameSession.host_user_id ? card : null)
+    let filteredHostGameCards = Object.values(dataStore.userCard ?? {}).filter((userCard) => userCard.user_id === gameSession.host_user_id && userCard.isActive ? userCard : null)
+    let filteredOpponentGameCards = Object.values(dataStore.userCard ?? {}).filter((userCard) => userCard.user_id !== gameSession.host_user_id && userCard.isActive ? userCard : null)
 
-    let displayHostGameCards = filteredHostGameCards.map((card) => {
+    let displayHostGameCards = filteredHostGameCards.map((user_card) => {
         // debugger
-        const {id, cardName, cardPower, cardDefense, cardCost, cardDescription} = card.card
+        const {id, cardName, cardPower, cardDefense, cardCost, cardDescription} = user_card.card
         return (
-                <Card key={uuid()} id={id} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} selectedCard={selectedCard} activeTurn={activeTurn} user_id={card.user_id} chosenCard={chosenCard}/>
+                <Card key={uuid()} id={id} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} selectedCard={selectedCard} activeTurn={activeTurn} user_id={user_card.user_id} chosenCard={chosenCard}/>
         )
     })
 
-    let displayOpponentGameCards = filteredOpponentGameCards.map((card) => {
+    let displayOpponentGameCards = filteredOpponentGameCards.map((user_card) => {
         // debugger
-        const {id, cardName, cardPower, cardDefense, cardCost, cardDescription} = card.card
+        const {id, cardName, cardPower, cardDefense, cardCost, cardDescription} = user_card.card
         return (
-                <Card key={uuid()} id={id} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} selectedCard={selectedCard} activeTurn={activeTurn} user_id={card.user_id} chosenCard={chosenCard}/>
+                <Card key={uuid()} id={id} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} selectedCard={selectedCard} activeTurn={activeTurn} user_id={user_card.user_id} chosenCard={chosenCard}/>
         )
     })
 
