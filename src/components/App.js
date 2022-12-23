@@ -44,7 +44,7 @@ function App() {
   const handleLogOut =() => {
     localStorage.removeItem("uid")
     setCurrentUser(null)
-    // navigate('/')
+    navigate('/home')
 }
 
 const welcomeMessage = () => {

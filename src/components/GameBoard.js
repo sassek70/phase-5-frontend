@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import consumer from "../cable"
 import uuid from "react-uuid"
 import Card from "./Card"
+import { useNavigate } from "react-router-dom"
 
 // console.log(consumer)
 
@@ -15,6 +16,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
     const [isAttacking, setIsAttacking] = useState(false)
     const [hostHealth, setHostHealth] = useState(gameSession.host_player_health)
     const [opponentHealth, setOpponentHealth] = useState(gameSession.opponent_player_health)
+    const navigate = useNavigate()
 
     // const [hostPlayerCards, setHostPlayerCards] = useState([])
     // const [opponentPlayerCards, setOpponentPlayerCards] = useState([])
@@ -31,6 +33,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
             disconnected: () => {
                 console.log("disconnected")
                 setIsConnected(false)
+                navigate('/home')
             },
             received: (data) => {
             // handleData(data)
@@ -57,8 +60,10 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                     case "update-health":
                         if(data.player === "host") {
                             setHostHealth((hostHealth) => data.health)
+                            console.log(data.health)
                         } else {
                             setOpponentHealth((opponentHealth) => data.health)
+                            console.log(data.health)
                         }
                         break;
                     case "update-cards":
@@ -80,6 +85,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                         console.log(data.message)
                         console.log(data)
                         break;
+
 
                 }
             }
@@ -149,7 +155,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         //     }
         // })
     }
-    const selectedCard = (selectedCardId, selectedCardPower, selectedCardDefense, selectedCardUserId) => {
+    const selectedCard = (selectedCardId, selectedCardPower, selectedCardDefense, selectedCardUserId, selectedCardUserCardId) => {
         setChosenCard()
         if (isAttacking === true && selectedCardUserId === currentUser.id) {
             let card = {
@@ -158,7 +164,8 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                 power: selectedCardPower,
                 defense: selectedCardDefense,
                 user_id: selectedCardUserId,
-                game_id: gameSession.id
+                game_id: gameSession.id,
+                user_card_id: selectedCardUserCardId
             }
             console.log({
                 player_id: currentUser.id,
@@ -180,7 +187,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         // debugger
         const {id, cardName, cardPower, cardDefense, cardCost, cardDescription} = user_card.card
         return (
-                <Card key={uuid()} id={id} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} selectedCard={selectedCard} activeTurn={activeTurn} user_id={user_card.user_id} chosenCard={chosenCard}/>
+                <Card key={uuid()} id={id} userCardId={user_card.id} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} selectedCard={selectedCard} activeTurn={activeTurn} user_id={user_card.user_id} chosenCard={chosenCard}/>
         )
     })
 
@@ -188,7 +195,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         // debugger
         const {id, cardName, cardPower, cardDefense, cardCost, cardDescription} = user_card.card
         return (
-                <Card key={uuid()} id={id} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} selectedCard={selectedCard} activeTurn={activeTurn} user_id={user_card.user_id} chosenCard={chosenCard}/>
+                <Card key={uuid()} id={id} cardName={cardName} userCardId={user_card.id} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} selectedCard={selectedCard} activeTurn={activeTurn} user_id={user_card.user_id} chosenCard={chosenCard}/>
         )
     })
 
@@ -226,6 +233,48 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         })
     }
 
+    const submitSkipAction = () => {
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.id}/player_actions/skip`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({
+                player_id: currentUser.id,
+                skip: true})
+        })
+        .then(res => {
+            if (!res.ok) {
+                res.json().then(errors => console.log(errors))
+            } 
+        })
+    }
+
+
+
+    const endTurnNoCard = () => {
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.id}/player_actions/combat`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({
+                player_id: currentUser.id
+            })
+        })
+        .then(res => {
+            if (!res.ok) {
+                res.json().then(errors => console.log(errors))
+            } 
+        })
+    }
+
+    if (hostHealth === 0 || opponentHealth === 0) {
+        alert("Game over")
+        navigate('/home')
+    }
 
 
     return (
@@ -242,7 +291,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
             : 
             <h3>Waiting for opponent</h3>
         }
-        {/* <p>{`Game-key: ${gameSession.game_key}`}</p> */}
+        <p>{`Game-key: ${gameSession.game_key}`}</p>
         {activeTurn?
             <p>Your turn</p>
             :
@@ -254,7 +303,18 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
             <div className="card-table">
                 <p>Oppenent's cards</p>
                 <p>Oppenent's health: {currentUser.id === gameSession.host_user_id ? opponentHealth : hostHealth}</p>
-                {gameSession.opponent_id? (currentUser.id === gameSession.host_user_id ? displayOpponentGameCards : displayHostGameCards) : <p>Waiting for opponent to join</p>}
+                {gameSession.opponent_id ? 
+                    currentUser.id === gameSession.host_user_id ? 
+                        displayOpponentGameCards.length > 0 ?
+                            displayOpponentGameCards 
+                            :
+                            <p>No cards remaining</p>
+                        : displayHostGameCards.length > 0 ?
+                            displayHostGameCards 
+                            :
+                            <p>No cards remaining</p>
+                    :
+                    <p>Waiting for opponent to join</p>}
             </div>
             <div className="card-table">
             <p>Current Player's cards</p>
@@ -269,16 +329,44 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
             :
                 <p>Waiting for opponent's action</p>
             }
-            {currentUser.id === gameSession.host_user_id ? displayHostGameCards : displayOpponentGameCards}
+            {/* {currentUser.id === gameSession.host_user_id ? displayHostGameCards : displayOpponentGameCards} */}
+            {currentUser.id === gameSession.host_user_id ? 
+                    displayHostGameCards.length > 0 ?
+                        displayHostGameCards 
+                        : 
+                        <>
+                        <p>No cards remaining</p>
+                        {isAttacking ? 
+                            <button onClick={()=>endTurnNoCard()}>End Turn</button>
+                            :
+                            <></>
+                        }  
+                        </>
+                    :
+                    displayOpponentGameCards.length > 0 ?
+                        displayOpponentGameCards 
+                        : 
+                        <>
+                        <p>No cards remaining</p>
+                        {isAttacking ? 
+                            <button onClick={()=>endTurnNoCard()}>End Turn</button>
+                            :
+                            <></>
+                        }  
+                        </>
+                }
             </div>
-            {chosenCard ?
-                isAttacking ? 
-                    activeTurn ? 
-                    <button onClick={() => submitAttackAction()}>Confirm Attack</button> 
-                    :  
-                    <button onClick={() => submitDefendAction()}>Confirm Defense</button>
+            {isAttacking ? 
+                activeTurn ? 
+                <>
+                <button onClick={() => submitAttackAction()}>Confirm Attack</button> 
+                <button onClick={() => submitSkipAction()}>Skip Turn</button>
+                </>
                 :
-                <></>
+                <>  
+                <button onClick={() => submitDefendAction()}>Confirm Defense</button>
+                <button onClick={() => submitSkipAction()}>Skip Turn</button>
+                </>
             :
             <></>
             }

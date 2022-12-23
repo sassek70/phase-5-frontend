@@ -104,7 +104,7 @@ const CreateOrJoinGame = ({currentUser, setGameSession, guestUser, setGuestUser,
          <p>You must be logged in to play</p>
          </>
         }
-        {gameKey}
+        {/* {gameKey} */}
         {gameKey?
         <button onClick={()=>startGame()}>Start Game</button>
         :
