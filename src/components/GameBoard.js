@@ -8,6 +8,11 @@ import { Subscription } from "@rails/actioncable"
 console.log(consumer)
 
 const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
+    
+    if (!currentUser) {
+        navigate('/home')
+    }
+
     const [count, setCount] = useState(0)
     const [gameCards, setGameCards] = useState([])
     const [isConnected, setIsConnected] = useState(false)
@@ -19,9 +24,6 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
     const [opponentHealth, setOpponentHealth] = useState(gameSession.opponent_player_health)
     const navigate = useNavigate()
 
-    if (!currentUser) {
-        navigate('/')
-    }
     
     useEffect(() => {
         const subscriber =  consumer.subscriptions.create({
@@ -64,11 +66,13 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                                 if(data.player === "host") {
                                     setHostHealth((hostHealth) => data.health)
                                     if (data.health <= 0) {
+                                        recordWinner(gameSession.host_user_id)
                                         handleGameOver(data.health)
                                     }
                                 } else {
                                     setOpponentHealth((opponentHealth) => data.health)
                                     if (data.health <= 0) {
+                                        recordWinner(gameSession.host_user_id)
                                         handleGameOver(data.health)
                                     }
                                 }
@@ -193,19 +197,29 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
 
     let displayHostGameCards = filteredHostGameCards.map((user_card) => {
         // debugger
-        const {id, cardName, cardPower, cardDefense, cardCost, cardDescription} = user_card.card
+        const {id, cardName, cardPower, cardDefense, cardCost, cardDescription, cardImage, cardArtist} = user_card.card
         return (
-                <Card key={uuid()} id={id} userCardId={user_card.id} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} selectedCard={selectedCard} activeTurn={activeTurn} user_id={user_card.user_id} chosenCard={chosenCard}/>
+                <Card key={uuid()} id={id} userCardId={user_card.id} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} selectedCard={selectedCard} activeTurn={activeTurn} user_id={user_card.user_id} chosenCard={chosenCard} cardImage={cardImage} cardArtist={cardArtist}/>
         )
     })
 
     let displayOpponentGameCards = filteredOpponentGameCards.map((user_card) => {
         // debugger
-        const {id, cardName, cardPower, cardDefense, cardCost, cardDescription} = user_card.card
+        const {id, cardName, cardPower, cardDefense, cardCost, cardDescription, cardImage, cardArtist} = user_card.card
         return (
-                <Card key={uuid()} id={id} cardName={cardName} userCardId={user_card.id} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} selectedCard={selectedCard} activeTurn={activeTurn} user_id={user_card.user_id} chosenCard={chosenCard}/>
+                <Card key={uuid()} id={id} cardName={cardName} userCardId={user_card.id} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} selectedCard={selectedCard} activeTurn={activeTurn} user_id={user_card.user_id} chosenCard={chosenCard} cardImage={cardImage} cardArtist={cardArtist}/>
         )
     })
+
+    const cardCounter = (playerCardsArray) => {
+        let count = playerCardsArray.length
+        for (const card of playerCardsArray) {
+            if (card.isActive === false) {
+                count -= 1
+            }
+        }
+        return count
+    }
 
     const submitAttackAction = () => {
         fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.id}/player_actions/attack`, {
@@ -284,7 +298,23 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
             navigate('/home')
     }
 
-
+    const recordWinner = (winningPlayerId) => {
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.game_key}/results`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({
+                winning_player_user_id: winningPlayerId,
+            })
+        })
+        .then(res => {
+            if (!res.ok) {
+                res.json().then(errors => console.log(errors))
+            } 
+        })
+    }
     
     return (
         <>
@@ -315,11 +345,17 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                 {gameSession.opponent_id ? 
                     currentUser.id === gameSession.host_user_id ? 
                         displayOpponentGameCards.length > 0 ?
-                            displayOpponentGameCards 
+                        <>
+                            <p>{`${cardCounter(displayOpponentGameCards)} remaining`}</p>
+                            {displayOpponentGameCards.slice(0,6)}
+                        </>
                             :
                             <p>No cards remaining</p>
                         : displayHostGameCards.length > 0 ?
-                            displayHostGameCards 
+                        <>
+                            <p>{`${cardCounter(displayHostGameCards)} cards remaining`}</p>
+                            {displayHostGameCards.slice(0,6)}
+                        </>
                             :
                             <p>No cards remaining</p>
                     :
@@ -341,27 +377,33 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
             {/* {currentUser.id === gameSession.host_user_id ? displayHostGameCards : displayOpponentGameCards} */}
             {currentUser.id === gameSession.host_user_id ? 
                     displayHostGameCards.length > 0 ?
-                        displayHostGameCards 
+                        <>
+                            <p>{`${cardCounter(displayHostGameCards)} cards remaining`}</p>
+                            {displayHostGameCards.slice(0,6)}
+                        </>
                         : 
                         <>
-                        <p>No cards remaining</p>
-                        {isAttacking ? 
-                            <button onClick={()=>endTurnNoCard()}>End Turn</button>
-                            :
+                            <p>No cards remaining</p>
+                            {isAttacking ? 
+                                <button onClick={()=>endTurnNoCard()}>End Turn</button>
+                                :
                             <></>
-                        }  
+                            }  
                         </>
                     :
                     displayOpponentGameCards.length > 0 ?
-                        displayOpponentGameCards.slice(0,3)
+                        <>
+                            <p>{`${cardCounter(displayOpponentGameCards)} cards remaining`}</p>
+                            {displayOpponentGameCards.slice(0,6)}
+                        </>
                         : 
                         <>
-                        <p>No cards remaining</p>
-                        {isAttacking ? 
-                            <button onClick={()=>endTurnNoCard()}>End Turn</button>
-                            :
-                            <></>
-                        }  
+                            <p>No cards remaining</p>
+                            {isAttacking ? 
+                                <button onClick={()=>endTurnNoCard()}>End Turn</button>
+                                :
+                                <></>
+                            }  
                         </>
                 }
             </div>

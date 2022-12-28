@@ -22,17 +22,23 @@ const CreateOrJoinGame = ({currentUser, setGameSession, guestUser, setGuestUser,
         fetch(`${process.env.REACT_APP_BACKEND_URL}/users/${currentUser.id}/creategame`,{
         method: "POST",
         headers: {
+          // "uid": `${localStorage.getItem('uid')}`,
           "Content-Type": "application/json",
           "Accept": "application/json"
         },
         // body: JSON.stringify(formData),
       })
-      .then(r => r.json())
-      .then(newGame => {
+      .then(res => {
+        if (res.ok) {
+          res.json().then(newGame => {
         setGameSession(newGame)
         setGameKey(newGame.game_key)
       })
-    }
+    } else {
+      res.json().then(errors => console.log(errors))
+    }})
+  }
+
 
     const handleSubmit = (e) => {
         e.preventDefault()
