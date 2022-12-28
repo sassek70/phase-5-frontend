@@ -3,8 +3,9 @@ import consumer from "../cable"
 import uuid from "react-uuid"
 import Card from "./Card"
 import { useNavigate } from "react-router-dom"
+import { Subscription } from "@rails/actioncable"
 
-// console.log(consumer)
+console.log(consumer)
 
 const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
     const [count, setCount] = useState(0)
@@ -18,78 +19,85 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
     const [opponentHealth, setOpponentHealth] = useState(gameSession.opponent_player_health)
     const navigate = useNavigate()
 
-    // const [hostPlayerCards, setHostPlayerCards] = useState([])
-    // const [opponentPlayerCards, setOpponentPlayerCards] = useState([])
+    if (!currentUser) {
+        navigate('/')
+    }
     
     useEffect(() => {
-            consumer.subscriptions.create({
-            channel: "GameSessionChannel",
-            game_key: `${gameSession.game_key}`,
-        },{
-            connected: () => {
-                console.log("connected")
-                setIsConnected(true)
-            },
-            disconnected: () => {
-                console.log("disconnected")
-                setIsConnected(false)
-                navigate('/home')
-            },
-            received: (data) => {
-            // handleData(data)
-                // const {count, game, game_cards} = data
-                switch(data.action) {
-                    case "counter":
-                        setCount(data.count);
-                        break;
-                    case "all-cards":
-                        updateDataStore('userCard', data.game_cards)
-                        console.log(data)
-                        break;
-                    case "user-joined":
-                        setGameSession(data.game)
-                        break;
-                    case "attack-declared":
-                        console.log(data.message)
-                        // setActiveTurn(activeTurn => !activeTurn)
-                        setIsAttacking(isAttacking => !isAttacking)
-                        break;
-                    case "defense-declared":
-                        console.log(data.message)
-                        break;
-                    case "update-health":
-                        if(data.player === "host") {
-                            setHostHealth((hostHealth) => data.health)
-                            console.log(data.health)
-                        } else {
-                            setOpponentHealth((opponentHealth) => data.health)
-                            console.log(data.health)
-                        }
-                        break;
-                    case "update-cards":
-                        updateDataStore('userCard', data.game_cards)
-                        console.log(data)
-                        console.log(data.game_cards)
-                        break;
-                    case "combat-results":
-                        if (data.attacking_player === currentUser.id) {
-                            setActiveTurn((activeTurn) => false)
-                            setIsAttacking((isAttacking) => false)
-                        } else {
-                            setActiveTurn((activeTurn) => true)
-                            setIsAttacking((isAttacking) => true)
-                        }
+        const subscriber =  consumer.subscriptions.create({
+                channel: "GameSessionChannel",
+                game_key: `${gameSession.game_key}`,
+            },{
+                connected: () => {
+                    console.log("connected")
+                    setIsConnected(true)
+                    // setSubscription(subscriber) 
+                },
+                disconnected: () => {
+                    console.log("disconnected")
+                    setIsConnected(false)
+                    navigate('/home')
+                },
+                received: (data) => {
+                // handleData(data)
+                    // const {count, game, game_cards} = data
+                    switch(data.action) {
+                        case "counter":
+                            setCount(data.count);
+                            break;
+                        case "all-cards":
+                            updateDataStore('userCard', data.game_cards)
+                            // console.log(data)
+                            break;
+                        case "user-joined":
+                            setGameSession(data.game)
+                            break;
+                        case "attack-declared":
+                            console.log(data.message)
+                            // setActiveTurn(activeTurn => !activeTurn)
+                            setIsAttacking(isAttacking => !isAttacking)
+                            break;
+                        case "defense-declared":
+                            console.log(data.message)
+                            break;
+                        case "update-health":
+                                if(data.player === "host") {
+                                    setHostHealth((hostHealth) => data.health)
+                                    if (data.health <= 0) {
+                                        handleGameOver(data.health)
+                                    }
+                                } else {
+                                    setOpponentHealth((opponentHealth) => data.health)
+                                    if (data.health <= 0) {
+                                        handleGameOver(data.health)
+                                    }
+                                }
+                            break;
+                        case "update-cards":
+                            updateDataStore('userCard', data.game_cards)
+                            // console.log(data)
+                            // console.log(data.game_cards)
+                            break;
+                        case "combat-results":
+                            if (data.attacking_player === currentUser.id) {
+                                setActiveTurn((activeTurn) => false)
+                                setIsAttacking((isAttacking) => false)
+                            } else {
+                                setActiveTurn((activeTurn) => true)
+                                setIsAttacking((isAttacking) => true)
+                            }
 
-                        // setHostHealth(data.game)
-                        setChosenCard(chosenCard => {})
-                        console.log(data.message)
-                        console.log(data)
-                        break;
+                            // setHostHealth(data.game)
+                            setChosenCard(chosenCard => {})
+                            console.log(data.message)
+                            // console.log(data)
+                            break;
 
 
+                    }
                 }
-            }
-        })        
+            })
+            return () => consumer.disconnect()
     },[])
     
     useEffect(() => {
@@ -261,7 +269,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                 "Accept": "application/json"
             },
             body: JSON.stringify({
-                player_id: currentUser.id
+                player_id: currentUser.id,
             })
         })
         .then(res => {
@@ -271,12 +279,13 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         })
     }
 
-    if (hostHealth === 0 || opponentHealth === 0) {
-        alert("Game over")
-        navigate('/home')
+    const handleGameOver = () => {
+            alert("Game over")
+            navigate('/home')
     }
 
 
+    
     return (
         <>
         <h2>Game Board</h2>
@@ -344,7 +353,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                         </>
                     :
                     displayOpponentGameCards.length > 0 ?
-                        displayOpponentGameCards 
+                        displayOpponentGameCards.slice(0,3)
                         : 
                         <>
                         <p>No cards remaining</p>

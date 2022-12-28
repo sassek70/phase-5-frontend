@@ -42,9 +42,9 @@ function App() {
   },[])
 
   const handleLogOut =() => {
+    navigate('/')
     localStorage.removeItem("uid")
-    setCurrentUser(null)
-    navigate('/home')
+    setCurrentUser()
 }
 
 const welcomeMessage = () => {

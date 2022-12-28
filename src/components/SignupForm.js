@@ -63,7 +63,7 @@ const SignUpForm = ({setCurrentUser}) => {
             <button type="submit">Sign Up</button>
         </form>
         {errors?
-            errors.map(error => <p>{error}</p>)
+            errors.errors.map(error => <p>{error}</p>)
         :
         <></>
         }
