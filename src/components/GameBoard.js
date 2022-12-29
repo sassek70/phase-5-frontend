@@ -4,6 +4,7 @@ import uuid from "react-uuid"
 import Card from "./Card"
 import { useNavigate } from "react-router-dom"
 import { Subscription } from "@rails/actioncable"
+import GameLog from "./GameLog"
 
 console.log(consumer)
 
@@ -19,6 +20,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
     const [isAttacking, setIsAttacking] = useState(false)
     const [hostHealth, setHostHealth] = useState(gameSession.host_player_health)
     const [opponentHealth, setOpponentHealth] = useState(gameSession.opponent_player_health)
+    const [gameLog, setGameLog] = useState([])
     const navigate = useNavigate()
     
     
@@ -49,14 +51,17 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                             break;
                         case "user-joined":
                             setGameSession(data.game)
+                            setGameLog(gameLog => ([...gameLog, data.message]))
                             break;
                         case "attack-declared":
                             console.log(data.message)
                             // setActiveTurn(activeTurn => !activeTurn)
                             setIsAttacking(isAttacking => !isAttacking)
+                            setGameLog(gameLog => ([...gameLog, data.message]))
                             break;
                         case "defense-declared":
                             console.log(data.message)
+                            setGameLog(gameLog => ([...gameLog, data.message]))
                             break;
                         case "update-health":
                                 if(data.player === "host") {
@@ -90,6 +95,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                             // setHostHealth(data.game)
                             setChosenCard(chosenCard => {})
                             console.log(data.message)
+                            setGameLog(gameLog => ([...gameLog, data.message]))
                             // console.log(data)
                             break;
 
@@ -296,7 +302,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
 
     const recordWinner = (winningPlayerId) => {
         fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.game_key}/results`, {
-            method: "POST",
+            method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
                 "Accept": "application/json"
@@ -311,6 +317,8 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
             } 
         })
     }
+
+    const displayLog = gameLog.map((log) => <p>{log}</p>)
 
    
     return (
@@ -419,6 +427,10 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
             <></>
             }
         </div>
+        <ul className="server-log">
+            {/* <GameLog gameLog={gameLog}/> */}
+            {displayLog}
+        </ul>
 
 
         </>
