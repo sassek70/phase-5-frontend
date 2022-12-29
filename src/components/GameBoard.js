@@ -9,10 +9,7 @@ console.log(consumer)
 
 const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
     
-    if (!currentUser) {
-        navigate('/home')
-    }
-
+    
     const [count, setCount] = useState(0)
     const [gameCards, setGameCards] = useState([])
     const [isConnected, setIsConnected] = useState(false)
@@ -23,7 +20,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
     const [hostHealth, setHostHealth] = useState(gameSession.host_player_health)
     const [opponentHealth, setOpponentHealth] = useState(gameSession.opponent_player_health)
     const navigate = useNavigate()
-
+    
     
     useEffect(() => {
         const subscriber =  consumer.subscriptions.create({
@@ -38,7 +35,6 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                 disconnected: () => {
                     console.log("disconnected")
                     setIsConnected(false)
-                    navigate('/home')
                 },
                 received: (data) => {
                 // handleData(data)
@@ -315,7 +311,8 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
             } 
         })
     }
-    
+
+   
     return (
         <>
         <h2>Game Board</h2>
@@ -341,7 +338,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         <div className="game-table">
             <div className="card-table">
                 <p>Oppenent's cards</p>
-                <p>Oppenent's health: {currentUser.id === gameSession.host_user_id ? opponentHealth : hostHealth}</p>
+                {/* <p>Oppenent's health: {currentUser.id === gameSession.host_user_id ? opponentHealth : hostHealth}</p> */}
                 {gameSession.opponent_id ? 
                     currentUser.id === gameSession.host_user_id ? 
                         displayOpponentGameCards.length > 0 ?
@@ -362,8 +359,8 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                     <p>Waiting for opponent to join</p>}
             </div>
             <div className="card-table">
-            <p>Current Player's cards</p>
-            <p>Your health: {currentUser.id === gameSession.host_user_id ? hostHealth : opponentHealth}</p>
+            <p>Your cards</p>
+            {/* <p>Your health: {currentUser.id === gameSession.host_user_id ? hostHealth : opponentHealth}</p> */}
 
 
             {isAttacking ? 
@@ -421,7 +418,6 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
             :
             <></>
             }
-
         </div>
 
 

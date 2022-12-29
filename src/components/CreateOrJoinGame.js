@@ -22,7 +22,7 @@ const CreateOrJoinGame = ({currentUser, setGameSession, guestUser, setGuestUser,
         fetch(`${process.env.REACT_APP_BACKEND_URL}/users/${currentUser.id}/creategame`,{
         method: "POST",
         headers: {
-          // "uid": `${localStorage.getItem('uid')}`,
+          "uid": localStorage.getItem('uid'),
           "Content-Type": "application/json",
           "Accept": "application/json"
         },
