@@ -2,7 +2,28 @@ body {
 background-color: rgba(0, 106, 138, 0.938);
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+
+.player-card {
+  /* display: flex; */
+  border: 2px solid black;
+  margin: auto;
 }
+.chosen-player-card {
+  /* display: flex; */
+  border: 2px solid red;
+  margin: auto;
+}
+
+.card-table {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.server-log {
+  border: 2px solid black;
+  overflow-y: scroll;
+  max-height: 200px;
+  width: 500px;
+}
+

@@ -22,34 +22,41 @@ const CreateOrJoinGame = ({currentUser, setGameSession, guestUser, setGuestUser,
         fetch(`${process.env.REACT_APP_BACKEND_URL}/users/${currentUser.id}/creategame`,{
         method: "POST",
         headers: {
+          "uid": localStorage.getItem('uid'),
           "Content-Type": "application/json",
           "Accept": "application/json"
         },
         // body: JSON.stringify(formData),
       })
-      .then(r => r.json())
-      .then(newGame => {
+      .then(res => {
+        if (res.ok) {
+          res.json().then(newGame => {
         setGameSession(newGame)
         setGameKey(newGame.game_key)
       })
-    }
+    } else {
+      res.json().then(errors => console.log(errors))
+    }})
+  }
+
 
     const handleSubmit = (e) => {
         e.preventDefault()
 
-          fetch(`${process.env.REACT_APP_BACKEND_URL}/users/${currentUser? currentUser.id : guestUser}/joingame/${formData.gameKey}`,{
+
+          fetch(`${process.env.REACT_APP_BACKEND_URL}/joingame/${formData.gameKey}`,{
             method: "PATCH",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({opponent_id: guestUser}),
+            body: JSON.stringify({opponent_id: currentUser? currentUser.id : guestUser}),
           })
           .then(res => {if (res.ok) {
             res.json()
           .then(existingGame => {
-            console.log(`/users/${existingGame.host_user_id}/game/${formData.gameKey}`)
+            console.log(`/game/${formData.gameKey}`)
             setGameSession(existingGame)
-            navigate(`/users/${existingGame.host_user_id}/game/${existingGame.game_key}`)
+            navigate(`/game/${existingGame.game_key}`)
           })
           } else {
           
@@ -80,7 +87,7 @@ const CreateOrJoinGame = ({currentUser, setGameSession, guestUser, setGuestUser,
         }
 
     const startGame = () => {
-      navigate(`/users/${gameSession.host_user_id}/game/${gameKey}`)
+      navigate(`/game/${gameKey}`)
     } 
 
     // console.log(gameSession, gameKey)
@@ -88,18 +95,22 @@ const CreateOrJoinGame = ({currentUser, setGameSession, guestUser, setGuestUser,
 
     return (
         <>
+        {currentUser?
+        <>
             <form onSubmit={handleSubmit}>
                 <label htmlFor="username">Enter a Game Key:</label>
                 <input type="text" value={formData.gameKey} name="gameKey" placeholder="Enter a Game Key" onChange={handleChange}></input>
 
                 <button type="submit">Join!</button>
             </form>            
-        {currentUser?
             <button onClick={()=>handleClick()}>Generate Game Key</button>
+        </>
          :
-         <></>
+         <>
+         <p>You must be logged in to play</p>
+         </>
         }
-        {gameKey}
+        {/* {gameKey} */}
         {gameKey?
         <button onClick={()=>startGame()}>Start Game</button>
         :
