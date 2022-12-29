@@ -21,6 +21,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
     const [hostHealth, setHostHealth] = useState(gameSession.host_player_health)
     const [opponentHealth, setOpponentHealth] = useState(gameSession.opponent_player_health)
     const [gameLog, setGameLog] = useState([])
+    const [errors, setErrors] = useState()
     const navigate = useNavigate()
     
     
@@ -67,7 +68,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                                 if(data.player === "host") {
                                     setHostHealth((hostHealth) => data.health)
                                     if (data.health <= 0) {
-                                        recordWinner(gameSession.host_user_id)
+                                        recordWinner(gameSession.opponent_id)
                                         handleGameOver(data.health)
                                     }
                                 } else {
@@ -80,8 +81,6 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                             break;
                         case "update-cards":
                             updateDataStore('userCard', data.game_cards)
-                            // console.log(data)
-                            // console.log(data.game_cards)
                             break;
                         case "combat-results":
                             if (data.attacking_player === currentUser.id) {
@@ -148,7 +147,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                     updateDataStore('userCard', game_cards)
                 })
             } else { 
-                res.json().then(errors => console.log(errors))
+                res.json().then(errors => setErrors(errors))
             }
         })
     }
@@ -234,7 +233,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         })
         .then(res => {
             if (!res.ok) {
-                res.json().then(errors => console.log(errors))
+                res.json().then(errors => setErrors(errors))
             } 
         })
     }
@@ -252,7 +251,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         })
         .then(res => {
             if (!res.ok) {
-                res.json().then(errors => console.log(errors))
+                res.json().then(errors => setErrors(errors))
             } 
         })
     }
@@ -270,7 +269,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         })
         .then(res => {
             if (!res.ok) {
-                res.json().then(errors => console.log(errors))
+                res.json().then(errors => setErrors(errors))
             } 
         })
     }
@@ -290,15 +289,38 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         })
         .then(res => {
             if (!res.ok) {
-                res.json().then(errors => console.log(errors))
+                res.json().then(errors => setErrors(errors))
             } 
         })
     }
 
     const handleGameOver = () => {
             alert("Game over")
+            console.log("game over")
             navigate('/home')
     }
+
+    // const gameDraw = () => {
+    //     fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.game_key}/draw`, {
+    //         method: "PATCH",
+    //         headers: {
+    //             "Content-Type": "application/json",
+    //             "Accept": "application/json"
+    //         },
+    //         body: JSON.stringify({draw: true})
+    //     })
+    //     .then(res => {
+    //         if (res.ok) {
+    //             res.json().then(() => {
+    //                 alert("Draw. Both players are out of cards")
+    //                 navigate('/home')
+    //             })
+    //         } else {
+    //             res.json().then(errors => setErrors(errors))
+    //         }
+    //     })
+    // }
+
 
     const recordWinner = (winningPlayerId) => {
         fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.game_key}/results`, {
@@ -313,7 +335,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         })
         .then(res => {
             if (!res.ok) {
-                res.json().then(errors => console.log(errors))
+                res.json().then(errors => setErrors(errors))
             } 
         })
     }
