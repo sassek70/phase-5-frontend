@@ -7,7 +7,20 @@ background-color: rgba(0, 106, 138, 0.938);
   /* display: flex; */
   border: 2px solid black;
   margin: auto;
+  max-width: 300px;
+  max-height: 300px;
 }
+
+.image {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.image-container {
+  max-width: 150px;
+  max-height: 200px;
+}
+
 .chosen-player-card {
   /* display: flex; */
   border: 2px solid red;
@@ -23,7 +36,8 @@ background-color: rgba(0, 106, 138, 0.938);
 .server-log {
   border: 2px solid black;
   overflow-y: scroll;
-  max-height: 200px;
+  height: 200px;
   width: 500px;
+  scroll-behavior: smooth;
 }
 

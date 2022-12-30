@@ -8,7 +8,9 @@ const Card = ({cardName, cardPower, cardDefense, cardCost, cardDescription, id, 
         <div className='player-card' onClick={()=>selectedCard(id, cardPower, cardDefense, user_id, userCardId)}>
             <h4>{cardName}</h4>
             <p>Cost: {cardCost}</p>
-            <img src={cardImage}/>
+            <div className="image-container">
+                <img className="image" src={cardImage}/>
+            </div>
             <p>Artist: {cardArtist}</p>
             <p>{cardPower}/{cardDefense}</p>
             {/* <div>

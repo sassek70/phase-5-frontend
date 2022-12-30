@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import consumer from "../cable"
 import uuid from "react-uuid"
 import Card from "./Card"
@@ -21,7 +21,9 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
     const [hostHealth, setHostHealth] = useState(gameSession.host_player_health)
     const [opponentHealth, setOpponentHealth] = useState(gameSession.opponent_player_health)
     const [gameLog, setGameLog] = useState([])
+    const [errors, setErrors] = useState()
     const navigate = useNavigate()
+    const bottomRef = useRef(null)
     
     
     useEffect(() => {
@@ -51,37 +53,33 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                             break;
                         case "user-joined":
                             setGameSession(data.game)
-                            setGameLog(gameLog => ([...gameLog, data.message]))
+                            setGameLog(gameLog => ([ data.message, ...gameLog]))
                             break;
                         case "attack-declared":
                             console.log(data.message)
                             // setActiveTurn(activeTurn => !activeTurn)
                             setIsAttacking(isAttacking => !isAttacking)
-                            setGameLog(gameLog => ([...gameLog, data.message]))
+                            setGameLog(gameLog => ([ data.message, ...gameLog]))
                             break;
                         case "defense-declared":
                             console.log(data.message)
-                            setGameLog(gameLog => ([...gameLog, data.message]))
+                            setGameLog(gameLog => ([ data.message, ...gameLog]))
                             break;
                         case "update-health":
                                 if(data.player === "host") {
                                     setHostHealth((hostHealth) => data.health)
                                     if (data.health <= 0) {
-                                        recordWinner(gameSession.host_user_id)
                                         handleGameOver(data.health)
                                     }
                                 } else {
                                     setOpponentHealth((opponentHealth) => data.health)
                                     if (data.health <= 0) {
-                                        recordWinner(gameSession.host_user_id)
                                         handleGameOver(data.health)
                                     }
                                 }
                             break;
                         case "update-cards":
                             updateDataStore('userCard', data.game_cards)
-                            // console.log(data)
-                            // console.log(data.game_cards)
                             break;
                         case "combat-results":
                             if (data.attacking_player === currentUser.id) {
@@ -95,11 +93,13 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                             // setHostHealth(data.game)
                             setChosenCard(chosenCard => {})
                             console.log(data.message)
-                            setGameLog(gameLog => ([...gameLog, data.message]))
+                            setGameLog(gameLog => ([ data.message, ...gameLog]))
                             // console.log(data)
                             break;
-
-
+                        case "draw":
+                            alert("Neither player has cards remaining. Game is a draw")
+                            navigate('/home')
+                            break;
                     }
                 }
             })
@@ -148,7 +148,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                     updateDataStore('userCard', game_cards)
                 })
             } else { 
-                res.json().then(errors => console.log(errors))
+                res.json().then(errors => setErrors(errors))
             }
         })
     }
@@ -234,7 +234,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         })
         .then(res => {
             if (!res.ok) {
-                res.json().then(errors => console.log(errors))
+                res.json().then(errors => setErrors(errors))
             } 
         })
     }
@@ -252,7 +252,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         })
         .then(res => {
             if (!res.ok) {
-                res.json().then(errors => console.log(errors))
+                res.json().then(errors => setErrors(errors))
             } 
         })
     }
@@ -270,7 +270,7 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         })
         .then(res => {
             if (!res.ok) {
-                res.json().then(errors => console.log(errors))
+                res.json().then(errors => setErrors(errors))
             } 
         })
     }
@@ -290,33 +290,56 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
         })
         .then(res => {
             if (!res.ok) {
-                res.json().then(errors => console.log(errors))
+                res.json().then(errors => setErrors(errors))
             } 
         })
     }
 
     const handleGameOver = () => {
             alert("Game over")
+            console.log("game over")
             navigate('/home')
     }
 
-    const recordWinner = (winningPlayerId) => {
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.game_key}/results`, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            body: JSON.stringify({
-                winning_player_user_id: winningPlayerId,
-            })
-        })
-        .then(res => {
-            if (!res.ok) {
-                res.json().then(errors => console.log(errors))
-            } 
-        })
-    }
+    // const gameDraw = () => {
+    //     fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.game_key}/draw`, {
+    //         method: "PATCH",
+    //         headers: {
+    //             "Content-Type": "application/json",
+    //             "Accept": "application/json"
+    //         },
+    //         body: JSON.stringify({draw: true})
+    //     })
+    //     .then(res => {
+    //         if (res.ok) {
+    //             res.json().then(() => {
+    //                 alert("Draw. Both players are out of cards")
+    //                 navigate('/home')
+    //             })
+    //         } else {
+    //             res.json().then(errors => setErrors(errors))
+    //         }
+    //     })
+    // }
+
+
+    // const recordWinner = (winningPlayerId) => {
+    //     fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.game_key}/results`, {
+    //         method: "PATCH",
+    //         headers: {
+    //             "Content-Type": "application/json",
+    //             "Accept": "application/json"
+    //         },
+    //         body: JSON.stringify({
+    //             winning_player_user_id: winningPlayerId,
+    //         })
+    //     })
+    //     .then(res => {
+    //         if (!res.ok) {
+    //             res.json().then(errors => setErrors(errors))
+    //         } 
+    //     })
+    // }
 
     const displayLog = gameLog.map((log) => <p>{log}</p>)
 
@@ -390,7 +413,10 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                         <>
                             <p>No cards remaining</p>
                             {isAttacking ? 
-                                <button onClick={()=>endTurnNoCard()}>End Turn</button>
+                                activeTurn ?
+                                    <button onClick={() => submitSkipAction()}>Skip Turn</button>
+                                    :
+                                    <button onClick={()=>endTurnNoCard()}>End Turn</button>
                                 :
                             <></>
                             }  
@@ -405,29 +431,35 @@ const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
                         <>
                             <p>No cards remaining</p>
                             {isAttacking ? 
-                                <button onClick={()=>endTurnNoCard()}>End Turn</button>
+                                activeTurn ?
+                                    <button onClick={() => submitSkipAction()}>Skip Turn</button>
+                                    :
+                                    <button onClick={()=>endTurnNoCard()}>End Turn</button>
                                 :
                                 <></>
                             }  
                         </>
                 }
             </div>
-            {isAttacking ? 
-                activeTurn ? 
-                <>
-                <button onClick={() => submitAttackAction()}>Confirm Attack</button> 
-                <button onClick={() => submitSkipAction()}>Skip Turn</button>
-                </>
+            {chosenCard?
+                isAttacking ? 
+                    activeTurn ? 
+                    <>
+                        <button onClick={() => submitAttackAction()}>Confirm Attack</button> 
+                        {/* <button onClick={() => submitSkipAction()}>Skip Turn</button> */}
+                    </>
+                    :
+                    <>  
+                        <button onClick={() => submitDefendAction()}>Confirm Defense</button>
+                        {/* <button onClick={() => submitSkipAction()}>Skip Turn</button> */}
+                    </>
                 :
-                <>  
-                <button onClick={() => submitDefendAction()}>Confirm Defense</button>
-                <button onClick={() => submitSkipAction()}>Skip Turn</button>
-                </>
+                <></>
             :
             <></>
             }
         </div>
-        <ul className="server-log">
+        <ul className="server-log" >
             {/* <GameLog gameLog={gameLog}/> */}
             {displayLog}
         </ul>
