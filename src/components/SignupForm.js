@@ -1,9 +1,12 @@
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import {UserContext} from "../context/UserContext"
 
 
-const SignUpForm = ({setCurrentUser}) => {
+const SignUpForm = () => {
     const navigate = useNavigate()
+    const {setCurrentUser} = useContext(UserContext)
+
     const [errors, setErrors] = useState()
     const [formData, setFormData] = useState({
         username: "",
