@@ -8,7 +8,6 @@ const Welcome = ({guestUser}) => {
     const {currentUser} = useContext(UserContext)
 
 
-    // console.log(currentUser.username)
     return (
         <>
         {currentUser?

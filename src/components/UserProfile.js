@@ -22,19 +22,12 @@ const UserProfile = () => {
     },[])
 
 
-    // console.log(updatedStats)
-
-
-
-
-
     return (
         <div>
             {updatedStats?
             <>
                 <p>Games Played: {updatedStats.gamesPlayed}</p>
                 <p>Games Won: {updatedStats.gamesWon}</p>
-                {/* <p>Win%: {parseFloat((updatedStats.gamesWon / updatedStats.gamesPlayed) * 100).toFixed(2)}</p> */}
                 <p>Win%: {updatedStats.win_rate}</p>
             </>
             :

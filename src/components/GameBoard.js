@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import consumer from "../cable"
 import uuid from "react-uuid"
 import Card from "./Card"
@@ -15,7 +15,6 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
 
     
     const [count, setCount] = useState(0)
-    const [gameCards, setGameCards] = useState([])
     const [isConnected, setIsConnected] = useState(false)
     const [dataStore, setDataStore] = useState({})
     const [activeTurn, setActiveTurn] = useState(false)
@@ -26,7 +25,6 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
     const [gameLog, setGameLog] = useState([])
     const [errors, setErrors] = useState()
     const navigate = useNavigate()
-    const bottomRef = useRef(null)
     
     
     useEffect(() => {
@@ -37,22 +35,18 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                 connected: () => {
                     console.log("connected")
                     setIsConnected(true)
-                    // setSubscription(subscriber) 
                 },
                 disconnected: () => {
                     console.log("disconnected")
                     setIsConnected(false)
                 },
                 received: (data) => {
-                // handleData(data)
-                    // const {count, game, game_cards} = data
                     switch(data.action) {
                         case "counter":
                             setCount(data.count);
                             break;
                         case "all-cards":
                             updateDataStore('userCard', data.game_cards)
-                            // console.log(data)
                             break;
                         case "user-joined":
                             setGameSession(data.game)
@@ -60,7 +54,6 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                             break;
                         case "attack-declared":
                             console.log(data.message)
-                            // setActiveTurn(activeTurn => !activeTurn)
                             setIsAttacking(isAttacking => !isAttacking)
                             setGameLog(gameLog => ([ data.message, ...gameLog]))
                             break;
@@ -93,11 +86,9 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                                 setIsAttacking((isAttacking) => true)
                             }
 
-                            // setHostHealth(data.game)
                             setChosenCard(chosenCard => {})
                             console.log(data.message)
                             setGameLog(gameLog => ([ data.message, ...gameLog]))
-                            // console.log(data)
                             break;
                         case "draw":
                             alert("Neither player has cards remaining. Game is a draw")
@@ -201,7 +192,6 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
     let filteredOpponentGameCards = Object.values(dataStore.userCard ?? {}).filter((userCard) => userCard.user_id !== gameSession.host_user_id && userCard.isActive ? userCard : null)
 
     let displayHostGameCards = filteredHostGameCards.map((user_card) => {
-        // debugger
         const {id, cardName, cardPower, cardDefense, cardCost, cardDescription, cardImage, cardArtist} = user_card.card
         return (
                 <Card key={uuid()} id={id} userCardId={user_card.id} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} selectedCard={selectedCard} activeTurn={activeTurn} user_id={user_card.user_id} chosenCard={chosenCard} cardImage={cardImage} cardArtist={cardArtist}/>
@@ -209,7 +199,6 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
     })
 
     let displayOpponentGameCards = filteredOpponentGameCards.map((user_card) => {
-        // debugger
         const {id, cardName, cardPower, cardDefense, cardCost, cardDescription, cardImage, cardArtist} = user_card.card
         return (
                 <Card key={uuid()} id={id} cardName={cardName} userCardId={user_card.id} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} selectedCard={selectedCard} activeTurn={activeTurn} user_id={user_card.user_id} chosenCard={chosenCard} cardImage={cardImage} cardArtist={cardArtist}/>
@@ -304,45 +293,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
             navigate('/home')
     }
 
-    // const gameDraw = () => {
-    //     fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.game_key}/draw`, {
-    //         method: "PATCH",
-    //         headers: {
-    //             "Content-Type": "application/json",
-    //             "Accept": "application/json"
-    //         },
-    //         body: JSON.stringify({draw: true})
-    //     })
-    //     .then(res => {
-    //         if (res.ok) {
-    //             res.json().then(() => {
-    //                 alert("Draw. Both players are out of cards")
-    //                 navigate('/home')
-    //             })
-    //         } else {
-    //             res.json().then(errors => setErrors(errors))
-    //         }
-    //     })
-    // }
 
-
-    // const recordWinner = (winningPlayerId) => {
-    //     fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.game_key}/results`, {
-    //         method: "PATCH",
-    //         headers: {
-    //             "Content-Type": "application/json",
-    //             "Accept": "application/json"
-    //         },
-    //         body: JSON.stringify({
-    //             winning_player_user_id: winningPlayerId,
-    //         })
-    //     })
-    //     .then(res => {
-    //         if (!res.ok) {
-    //             res.json().then(errors => setErrors(errors))
-    //         } 
-    //     })
-    // }
 
     const displayLog = gameLog.map((log) => <p>{log}</p>)
 
@@ -372,7 +323,6 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
         <div className="game-table">
             <div className="card-table">
                 <p>Oppenent's cards</p>
-                {/* <p>Oppenent's health: {currentUser.id === gameSession.host_user_id ? opponentHealth : hostHealth}</p> */}
                 {gameSession.opponent_id ? 
                     currentUser.id === gameSession.host_user_id ? 
                         displayOpponentGameCards.length > 0 ?
@@ -394,9 +344,6 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
             </div>
             <div className="card-table">
             <p>Your cards</p>
-            {/* <p>Your health: {currentUser.id === gameSession.host_user_id ? hostHealth : opponentHealth}</p> */}
-
-
             {isAttacking ? 
                 activeTurn ? 
                 <p>Choose a card to attack with</p>
@@ -405,7 +352,6 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
             :
                 <p>Waiting for opponent's action</p>
             }
-            {/* {currentUser.id === gameSession.host_user_id ? displayHostGameCards : displayOpponentGameCards} */}
             {currentUser.id === gameSession.host_user_id ? 
                     displayHostGameCards.length > 0 ?
                         <>
@@ -449,12 +395,10 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                     activeTurn ? 
                     <>
                         <button onClick={() => submitAttackAction()}>Confirm Attack</button> 
-                        {/* <button onClick={() => submitSkipAction()}>Skip Turn</button> */}
                     </>
                     :
                     <>  
                         <button onClick={() => submitDefendAction()}>Confirm Defense</button>
-                        {/* <button onClick={() => submitSkipAction()}>Skip Turn</button> */}
                     </>
                 :
                 <></>
@@ -463,7 +407,6 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
             }
         </div>
         <ul className="server-log" >
-            {/* <GameLog gameLog={gameLog}/> */}
             {displayLog}
         </ul>
 

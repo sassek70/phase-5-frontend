@@ -93,9 +93,6 @@ const CreateOrJoinGame = ({setGameSession, guestUser, setGuestUser, gameSession}
       navigate(`/game/${gameKey}`)
     } 
 
-    // console.log(gameSession, gameKey)
-    // console.log(`${process.env.REACT_APP_BACKEND_URL}/users/${currentUser.id}/creategame`)
-
     return (
         <>
         {currentUser?
@@ -113,7 +110,6 @@ const CreateOrJoinGame = ({setGameSession, guestUser, setGuestUser, gameSession}
          <p>You must be logged in to play</p>
          </>
         }
-        {/* {gameKey} */}
         {gameKey?
         <button onClick={()=>startGame()}>Start Game</button>
         :

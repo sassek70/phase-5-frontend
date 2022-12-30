@@ -16,33 +16,9 @@ function App() {
   const navigate = useNavigate()
   const [guestUser, setGuestUser] = useState(null)
   const [gameSession, setGameSession] = useState(null)
-  // const [currentUser, setCurrentUser] = useState(null)
   const {currentUser, setCurrentUser} = useContext(UserContext)
 
 
-  // useEffect(() => {
-  //   if (localStorage.uid) {
-  //     fetch(`${process.env.REACT_APP_BACKEND_URL}/existingtoken`, {
-  //       method: 'POST',
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         "Accept": "application/json"
-  //       },
-  //       body: JSON.stringify(localStorage.uid)
-  //     })
-  //     .then(res => {if(res.ok) {
-  //       res.json()
-  //       .then(user => {
-  //         setCurrentUser(user)
-  //         navigate('/home')
-  //       }
-  //     )}
-  //   })
-  // } else {
-  //   setGuestUser(parseInt(Math.random() * ((100000 - 1000) + 1000)))
-  //   console.log('No User Found');
-  // };
-  // },[])
 
   const handleLogOut =() => {
     localStorage.removeItem("uid")
