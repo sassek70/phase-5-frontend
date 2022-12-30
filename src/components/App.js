@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import CreateOrJoinGame from "./CreateOrJoinGame";
 import GameBoard from "./GameBoard";
@@ -8,6 +8,7 @@ import NavBar from "./NavBar";
 import SignUpForm from "./SignupForm";
 import UserProfile from "./UserProfile";
 import Welcome from "./Welcome";
+import {UserContext} from "../context/UserContext"
 
 
 
@@ -15,32 +16,33 @@ function App() {
   const navigate = useNavigate()
   const [guestUser, setGuestUser] = useState(null)
   const [gameSession, setGameSession] = useState(null)
-  const [currentUser, setCurrentUser] = useState(null)
+  // const [currentUser, setCurrentUser] = useState(null)
+  const {currentUser, setCurrentUser} = useContext(UserContext)
 
 
-  useEffect(() => {
-    if (localStorage.uid) {
-      fetch(`${process.env.REACT_APP_BACKEND_URL}/existingtoken`, {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-        body: JSON.stringify(localStorage.uid)
-      })
-      .then(res => {if(res.ok) {
-        res.json()
-        .then(user => {
-          setCurrentUser(user)
-          navigate('/home')
-        }
-      )}
-    })
-  } else {
-    setGuestUser(parseInt(Math.random() * ((100000 - 1000) + 1000)))
-    console.log('No User Found');
-  };
-  },[])
+  // useEffect(() => {
+  //   if (localStorage.uid) {
+  //     fetch(`${process.env.REACT_APP_BACKEND_URL}/existingtoken`, {
+  //       method: 'POST',
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         "Accept": "application/json"
+  //       },
+  //       body: JSON.stringify(localStorage.uid)
+  //     })
+  //     .then(res => {if(res.ok) {
+  //       res.json()
+  //       .then(user => {
+  //         setCurrentUser(user)
+  //         navigate('/home')
+  //       }
+  //     )}
+  //   })
+  // } else {
+  //   setGuestUser(parseInt(Math.random() * ((100000 - 1000) + 1000)))
+  //   console.log('No User Found');
+  // };
+  // },[])
 
   const handleLogOut =() => {
     localStorage.removeItem("uid")
@@ -61,13 +63,13 @@ const welcomeMessage = () => {
     <>
     <h2>A Not So Magical Gathering</h2>
     <p>Welcome {`${welcomeMessage()}`}</p>
-    <NavBar currentUser={currentUser} handleLogOut={handleLogOut}/>
+    <NavBar handleLogOut={handleLogOut}/>
     <Routes>
-      <Route path='/home' element={<Welcome currentUser={currentUser} guestUser={guestUser}/>}/>
+      <Route path='/home' element={<Welcome guestUser={guestUser}/>}/>
       <Route path='/signup' element={<SignUpForm setCurrentUser={setCurrentUser}/>}/>
       <Route path='/login' element={<LogInForm setCurrentUser={setCurrentUser}/>}/>
-      <Route path='/hostgame' element={<CreateOrJoinGame currentUser={currentUser} gameSession={gameSession} setGameSession={setGameSession} guestUser={guestUser} setGuestUser={setGuestUser}/>}/>
-      <Route path={`/game/${gameSession? gameSession.game_key : null}`} element={<GameBoard currentUser={currentUser} gameSession={gameSession} setGameSession={setGameSession} guestUser={guestUser}/>}/>
+      <Route path='/hostgame' element={<CreateOrJoinGame gameSession={gameSession} setGameSession={setGameSession} guestUser={guestUser} setGuestUser={setGuestUser}/>}/>
+      <Route path={`/game/${gameSession? gameSession.game_key : null}`} element={<GameBoard gameSession={gameSession} setGameSession={setGameSession} guestUser={guestUser}/>}/>
       <Route path='/profile' element={<UserProfile currentUser={currentUser}/>}/>
       <Route path='/leaderboard' element={<Leaderboard/>}/>
     </Routes>

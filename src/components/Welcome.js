@@ -1,6 +1,12 @@
+import { useContext } from "react"
+import {UserContext} from "../context/UserContext"
 
 
-const Welcome = ({currentUser, guestUser}) => {
+const Welcome = ({guestUser}) => {
+
+    
+    const {currentUser} = useContext(UserContext)
+
 
     // console.log(currentUser.username)
     return (

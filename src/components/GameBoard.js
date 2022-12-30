@@ -1,15 +1,18 @@
-import { useEffect, useRef, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import consumer from "../cable"
 import uuid from "react-uuid"
 import Card from "./Card"
 import { useNavigate } from "react-router-dom"
 import { Subscription } from "@rails/actioncable"
 import GameLog from "./GameLog"
+import {UserContext} from "../context/UserContext"
 
 console.log(consumer)
 
-const GameBoard = ({currentUser, gameSession, setGameSession, guestUser}) => {
+const GameBoard = ({gameSession, setGameSession, guestUser}) => {
     
+    const {currentUser} = useContext(UserContext)
+
     
     const [count, setCount] = useState(0)
     const [gameCards, setGameCards] = useState([])

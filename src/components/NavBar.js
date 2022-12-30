@@ -1,8 +1,12 @@
+import { useContext } from "react"
 import { NavLink } from "react-router-dom"
+import {UserContext} from "../context/UserContext"
 
 
 
-const NavBar = ({currentUser, handleLogOut}) => {
+const NavBar = ({handleLogOut}) => {
+
+    const {currentUser} = useContext(UserContext)
 
     return(
         <nav>

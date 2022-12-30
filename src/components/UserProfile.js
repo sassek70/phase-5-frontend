@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
+import {UserContext} from "../context/UserContext"
 
 
-const UserProfile = ({currentUser}) => {
+const UserProfile = () => {
     const [updatedStats, setUpdatedStats] = useState()
     const [errors, setErrors] = useState()
+    const {currentUser} = useContext(UserContext)
+
     
     useEffect(() => {
         if (currentUser) {

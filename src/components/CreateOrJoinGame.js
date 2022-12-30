@@ -1,14 +1,17 @@
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import {UserContext} from "../context/UserContext"
 
 
-const CreateOrJoinGame = ({currentUser, setGameSession, guestUser, setGuestUser, gameSession}) => {
+const CreateOrJoinGame = ({setGameSession, guestUser, setGuestUser, gameSession}) => {
     // const [currentUser, setCurrentUser] = useState()
     const navigate = useNavigate()
     const [errors, setErrors] = useState()
     const [formData, setFormData] = useState({gameKey: ""})
     const [gameKey, setGameKey] = useState("")
-    // console.log(currentUser)
+
+    const {currentUser} = useContext(UserContext)
+
 
     const handleChange = (e) => {
         const {name, value} = e.target
