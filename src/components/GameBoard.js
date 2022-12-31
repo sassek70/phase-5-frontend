@@ -94,6 +94,9 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                             alert("Neither player has cards remaining. Game is a draw")
                             navigate('/home')
                             break;
+                        case "test":
+                            console.log(data)
+                            break;
                     }
                 }
             })
@@ -162,6 +165,11 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
         //     res.json().then(updatedCount => setCount(updatedCount))
         //     }
         // })
+        consumer.send(JSON.stringify({
+            command: 'received',
+            game_key: gameSession.game_key,
+            data: JSON.stringify({message:"button clicked"})
+        }))
     }
     const selectedCard = (selectedCardId, selectedCardPower, selectedCardDefense, selectedCardUserId, selectedCardUserCardId) => {
         setChosenCard()

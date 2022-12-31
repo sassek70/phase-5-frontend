@@ -32,13 +32,17 @@ const Leaderboard = () => {
         <>
             {userList?
             <Table>
-                <tr>
-                    <Thnb>User</Thnb>
-                    <Th>Games Played</Th>
-                    <Th>Games Won</Th>
-                    <Th>Win Rate</Th>
-                </tr>
-                {displayUsers}
+                <thead>
+                    <tr>
+                        <Thnb>User</Thnb>
+                        <Th>Games Played</Th>
+                        <Th>Games Won</Th>
+                        <Th>Win Rate</Th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {displayUsers}
+                </tbody>
             </Table>
             :
             <p>Leaderboard loading</p>
