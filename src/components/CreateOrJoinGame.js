@@ -36,6 +36,7 @@ const CreateOrJoinGame = ({setGameSession, guestUser, setGuestUser, gameSession}
           res.json().then(newGame => {
         setGameSession(newGame)
         setGameKey(newGame.game_key)
+        navigate(`/game/${newGame.game_key}`)
       })
     } else {
       res.json().then(errors => console.log(errors))
@@ -89,31 +90,29 @@ const CreateOrJoinGame = ({setGameSession, guestUser, setGuestUser, gameSession}
     // }}
         }
 
-    const startGame = () => {
-      navigate(`/game/${gameKey}`)
-    } 
+        const invalidKey = (e) => {
+          return e.target.setCustomValidity("Please enter a game key")
+        }
 
     return (
         <>
         {currentUser?
         <>
             <form onSubmit={handleSubmit}>
-                <label htmlFor="username">Enter a Game Key:</label>
-                <input type="text" value={formData.gameKey} name="gameKey" placeholder="Enter a Game Key" onChange={handleChange}></input>
+                <label htmlFor="username">Have a Game Key? Enter it here to join!</label>
+                <input type="text" value={formData.gameKey} name="gameKey" placeholder="Enter a Game Key" onChange={handleChange} required onInvalid={invalidKey}></input>
 
                 <button type="submit">Join!</button>
-            </form>            
-            <button onClick={()=>handleClick()}>Generate Game Key</button>
+            </form>
+            <div>
+              <p>Click here to host a new game and receive a game key to give to a friend.</p>
+              <button onClick={()=>handleClick()}>Create Game</button>
+            </div>
         </>
          :
          <>
          <p>You must be logged in to play</p>
          </>
-        }
-        {gameKey?
-        <button onClick={()=>startGame()}>Start Game</button>
-        :
-        <></>  
         }
         {errors?
             <p>{errors.error}</p>

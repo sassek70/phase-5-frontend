@@ -3,9 +3,9 @@ import consumer from "../cable"
 import uuid from "react-uuid"
 import Card from "./Card"
 import { useNavigate } from "react-router-dom"
-import { Subscription } from "@rails/actioncable"
 import GameLog from "./GameLog"
 import {UserContext} from "../context/UserContext"
+import styled from "styled-components"
 
 console.log(consumer)
 
@@ -321,7 +321,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
         <button onClick={()=>updateServer()}>Add one to count</button>
         <p>Count: {count}</p>
         <div className="game-table">
-            <div className="card-table">
+            <CardTable className="card-table">
                 <p>Oppenent's cards</p>
                 {gameSession.opponent_id ? 
                     currentUser.id === gameSession.host_user_id ? 
@@ -341,8 +341,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                             <p>No cards remaining</p>
                     :
                     <p>Waiting for opponent to join</p>}
-            </div>
-            <div className="card-table">
+            </CardTable>
             <p>Your cards</p>
             {isAttacking ? 
                 activeTurn ? 
@@ -352,6 +351,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
             :
                 <p>Waiting for opponent's action</p>
             }
+            <CardTable className="card-table">
             {currentUser.id === gameSession.host_user_id ? 
                     displayHostGameCards.length > 0 ?
                         <>
@@ -389,7 +389,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                             }  
                         </>
                 }
-            </div>
+            </CardTable>
             {chosenCard?
                 isAttacking ? 
                     activeTurn ? 
@@ -417,3 +417,13 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
 }
 
 export default GameBoard
+
+
+
+const CardTable = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  border: 10px inset #631414;
+  padding: 30px;
+`
