@@ -10,6 +10,7 @@ const NavBar = ({handleLogOut}) => {
 
     return(
         <>
+      <h2>A Not So Magical Gathering</h2>
             <nav>
                 <NavLink to='/home' name="Home">Home</NavLink>
                 {currentUser ?
@@ -30,11 +31,7 @@ const NavBar = ({handleLogOut}) => {
                 }
                 <NavLink to='/leaderboard' name='Leaderboard'>Leaderboard</NavLink>
             </nav>
-            {currentUser?
-                <h2>{currentUser ? `Welcome ${currentUser.username}` : <></>}</h2>
-                :
-                <></>
-            }
+
             </>
 
     )

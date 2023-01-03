@@ -8,6 +8,7 @@ const UserContext = React.createContext()
 // create the provider component
 const UserProvider = ({children}) => {
     const [currentUser, setCurrentUser] = useState(null)
+    const [opponentUser, setOpponentUser] = useState(null)
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -31,11 +32,12 @@ const UserProvider = ({children}) => {
       } else {
         // setGuestUser(parseInt(Math.random() * ((100000 - 1000) + 1000)))
         console.log('No User Found');
+        navigate('/home')
       };
       },[])
     // the value prop of the provider is the context data
     // this value will be available in the child components of this provider
-    return ( <UserContext.Provider value={{currentUser, setCurrentUser}}>
+    return ( <UserContext.Provider value={{currentUser, setCurrentUser, setOpponentUser, opponentUser}}>
                 {children}
             </UserContext.Provider>
     ); 

@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom"
 import GameLog from "./GameLog"
 import {UserContext} from "../context/UserContext"
 import styled from "styled-components"
+// import uuid from "react-uuid"
 
 console.log(consumer)
 
@@ -165,11 +166,14 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
         //     res.json().then(updatedCount => setCount(updatedCount))
         //     }
         // })
-        consumer.send(JSON.stringify({
-            command: 'received',
-            game_key: gameSession.game_key,
-            data: JSON.stringify({message:"button clicked"})
-        }))
+        consumer.send({
+            command: "message",
+            // identifier:{
+                channel: "GameSessionChannel",
+                game_key: gameSession.game_key,
+            // },
+            data:JSON.stringify({message:"button clicked"})
+        })
     }
     const selectedCard = (selectedCardId, selectedCardPower, selectedCardDefense, selectedCardUserId, selectedCardUserCardId) => {
         setChosenCard()
@@ -303,72 +307,109 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
 
 
 
-    const displayLog = gameLog.map((log) => <p>{log}</p>)
-
+    const displayLog = gameLog.map((log) => <p key={uuid()}>{log}</p>)
+    console.log(gameSession)
    
     return (
         <>
-        <h2>Game Board</h2>
         {/* <h3>{`Player 1: ${currentUser? currentUser.username : guestUser}`}</h3> */}
         <h3>{`Player 1: ${currentUser.username}`}</h3>
-        <h4>Health: {hostHealth}</h4>
         {gameSession.opponent_id ? 
             <>
             <h3>{`Player 2: ${gameSession.opponent_id}`}</h3> 
-            <h4>Health:{opponentHealth}</h4> 
             </>
             : 
             <h3>Waiting for opponent</h3>
         }
-        <p>{`Game-key: ${gameSession.game_key}`}</p>
-        {activeTurn?
-            <p>Your turn</p>
-            :
-            <p>Oppenent's turn</p>
-        } 
-        <button onClick={()=>updateServer()}>Add one to count</button>
-        <p>Count: {count}</p>
-        <div className="game-table">
-            <CardTable className="card-table">
-                <p>Oppenent's cards</p>
+        <div>{`Game-key: ${gameSession.game_key}`}</div>
+        {/* <button onClick={()=>updateServer()}>Add one to count</button> */}
+        {/* <p>Count: {count}</p> */}
+        <Body>
+        <GameTable>
+        {/* <div>Oppenent's cards</div> */}
+        <h4>Opponent's Health:{opponentHealth}</h4> 
+            <PlayerCardArea className="card-table">
                 {gameSession.opponent_id ? 
                     currentUser.id === gameSession.host_user_id ? 
-                        displayOpponentGameCards.length > 0 ?
-                        <>
-                            <p>{`${cardCounter(displayOpponentGameCards)} remaining`}</p>
-                            {displayOpponentGameCards.slice(0,6)}
+                    displayOpponentGameCards.length > 0 ?
+                    <>
+                            {displayOpponentGameCards.slice(0,5)}
+                            <CardPile>
+                                <p>{cardCounter(displayOpponentGameCards) < 5 ? `0 cards remaining` : `${cardCounter(displayOpponentGameCards) - 5} cards remaining`}</p>
+                            </CardPile>
                         </>
                             :
-                            <p>No cards remaining</p>
-                        : displayHostGameCards.length > 0 ?
-                        <>
-                            <p>{`${cardCounter(displayHostGameCards)} cards remaining`}</p>
-                            {displayHostGameCards.slice(0,6)}
+                            <CardPile>
+                                <p>No cards remaining</p>
+                            </CardPile>
+                            : displayHostGameCards.length > 0 ?
+                            <>
+                            {displayHostGameCards.slice(0,5)}
+                            <CardPile>
+                                <p>{cardCounter(displayHostGameCards) < 5 ? `0 cards remaining` : `${cardCounter(displayHostGameCards) - 5} cards remaining`}</p>
+                            </CardPile>
                         </>
                             :
-                            <p>No cards remaining</p>
-                    :
-                    <p>Waiting for opponent to join</p>}
-            </CardTable>
-            <p>Your cards</p>
+                            <CardPile>
+                                <p>No cards remaining</p>
+                            </CardPile>
+                            :
+                            <p>Waiting for opponent to join</p>}
+            </PlayerCardArea>
+        <GameActions className="server-log" >
+            {displayLog}
+        </GameActions>
+        <PlayerNotesContainer>
+
+            {activeTurn?
+                <PlayerNotes>Your turn</PlayerNotes>
+                :
+                <PlayerNotes>Oppenent's turn</PlayerNotes>
+            } 
+            <br/>
             {isAttacking ? 
                 activeTurn ? 
-                <p>Choose a card to attack with</p>
+                <PlayerNotes>Choose a card to attack with</PlayerNotes>
                 :
-                <p>Choose a card to defend with</p>
-            :
-                <p>Waiting for opponent's action</p>
+                <PlayerNotes>Choose a card to defend with</PlayerNotes>
+                :
+                <PlayerNotes>Waiting for opponent's action</PlayerNotes>
             }
-            <CardTable className="card-table">
+        </PlayerNotesContainer>
+            <h4>Your Health: {hostHealth}</h4>
+        {/* <p>Your cards</p> */}
+        <Buttons>
+
+        {chosenCard?
+                    isAttacking ? 
+                    activeTurn ? 
+                    <>
+                            <button onClick={() => submitAttackAction()}>Confirm Attack</button> 
+                        </>
+                        :
+                        <>  
+                            <button onClick={() => submitDefendAction()}>Confirm Defense</button>
+                        </>
+                    :
+                    <></>
+                    :
+                    <></>
+                }
+            </Buttons>
+            <PlayerCardArea className="card-table">
             {currentUser.id === gameSession.host_user_id ? 
                     displayHostGameCards.length > 0 ?
                         <>
-                            <p>{`${cardCounter(displayHostGameCards)} cards remaining`}</p>
-                            {displayHostGameCards.slice(0,6)}
+                            <CardPile>
+                                <p>{cardCounter(displayHostGameCards) < 5 ? `0 cards remaining` : `${cardCounter(displayHostGameCards) - 5} cards remaining`}</p>
+                            </CardPile>
+                            {displayHostGameCards.slice(0,5)}
                         </>
                         : 
                         <>
-                            <p>No cards remaining</p>
+                            <CardPile>
+                                <p>No cards remaining</p>
+                            </CardPile>
                             {isAttacking ? 
                                 activeTurn ?
                                     <button onClick={() => submitSkipAction()}>Skip Turn</button>
@@ -381,12 +422,16 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                     :
                     displayOpponentGameCards.length > 0 ?
                         <>
-                            <p>{`${cardCounter(displayOpponentGameCards)} cards remaining`}</p>
-                            {displayOpponentGameCards.slice(0,6)}
+                            <CardPile>
+                                <p>{cardCounter(displayOpponentGameCards) < 5 ? `0 cards remaining` : `${cardCounter(displayOpponentGameCards) - 5} cards remaining`}</p>
+                            </CardPile>
+                            {displayOpponentGameCards.slice(0,5)}
                         </>
                         : 
                         <>
-                            <p>No cards remaining</p>
+                            <CardPile>
+                                <p>No cards remaining</p>
+                            </CardPile>
                             {isAttacking ? 
                                 activeTurn ?
                                     <button onClick={() => submitSkipAction()}>Skip Turn</button>
@@ -397,28 +442,15 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                             }  
                         </>
                 }
-            </CardTable>
-            {chosenCard?
-                isAttacking ? 
-                    activeTurn ? 
-                    <>
-                        <button onClick={() => submitAttackAction()}>Confirm Attack</button> 
-                    </>
-                    :
-                    <>  
-                        <button onClick={() => submitDefendAction()}>Confirm Defense</button>
-                    </>
-                :
-                <></>
-            :
-            <></>
-            }
-        </div>
-        <ul className="server-log" >
-            {displayLog}
-        </ul>
+            </PlayerCardArea>
+            </GameTable>
+            <div>
+
+            </div>
 
 
+
+        </Body>
         </>
 
     )
@@ -427,11 +459,79 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
 export default GameBoard
 
 
+const GameTable = styled.div`
+    display: flex;
+    flex-direction: column;
+    border: 2px solid black;
+    justify-content: center;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+    min-width: 80vw;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.95);
+    border-radius: 20px;
 
-const CardTable = styled.div`
+
+`
+
+const PlayerCardArea = styled.div`
   display: flex;
+  min-width : 75vw;
+  min-height: 340px;
   flex-direction: row;
   flex-wrap: nowrap;
-  border: 10px inset #631414;
+  border: 5px inset #631414;
+  column-gap: 20px;
   padding: 30px;
+`
+
+const CardPile = styled.div`
+   border: 2px solid #631414;
+   display: flex;
+   /* filter: drop-shadow(19px 13px 16px #000);  */
+   border-radius: 24px;
+   background: slategrey;
+   margin: auto;
+   width: 140px;
+   height: 250px;
+   justify-content: center;
+   align-items: center;
+   padding: 5px;
+   background: radial-gradient( #9E2929 0%, #000 20%, #521818 60%, #000 75%, #251E1E 96%, #1B1A1A 100%);
+   color: white;
+   `
+
+const GameActions = styled.ul`
+  border: 2px solid white;
+  overflow-y: scroll;
+  height: 200px;
+  width: 500px;
+  scroll-behavior: smooth;
+  color: white;
+`
+const Body = styled.body`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+    width: 100vw;
+    color: white;
+`
+
+const Buttons = styled.div`
+    width: 75vw;
+    text-align: left;
+    margin: 25px;
+    `
+
+const PlayerNotesContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    `
+
+const PlayerNotes = styled.div`
+    display: flex;
+    justify-content: left;
+    padding: 5px;
 `

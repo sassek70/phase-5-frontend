@@ -10,13 +10,18 @@ const Welcome = ({guestUser}) => {
 
     return (
         <>
+            {currentUser?
+                <h2>{currentUser ? `Welcome ${currentUser.username}` : <></>}</h2>
+                :
+                <></>
+            }
 
         <div>
             <p>A Not So Magical Gathering is a 1v1 browser based card-battle game. This game has been created using Reactjs and Ruby on Rails. At this time, you must create an account in order to play to game.</p>
             <h5>GETTING STARTED:</h5>
             <p>There are two ways to start a game. You can either Host a game or join a game if you have been sent a Game Key. If you choose to host a game, a game key will be displayed when the game loads. Send this key to the person you wish to play against.</p>
             <h5>HOW TO PLAY:</h5>
-            <p>When you host or join a game, you will be given a deck containing thirty (30) random cards, Six (6) cards will displayed on your table at a time. Both players start with twenty (20) health.<br/>
+            <p>When you host or join a game, you will be given a deck containing thirty (30) random cards, five (5) cards will displayed on your table at a time. Both players start with twenty (20) health.<br/>
                 The Host player always has the first turn. On your turn, you can select a Card to attack or skip your turn. Once you click "Confirm Attack", your Opponent then gets to choose a Card to defend with.<br/>
                 If the Defending Player chooses a card to defend with, the Power value of each card is compared against the Toughness value. Both player's card tables and total health will be updated based on the results</p>
             <h5>EXAMPLE TURN</h5>

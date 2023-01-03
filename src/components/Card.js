@@ -9,12 +9,12 @@ const Card = ({cardName, cardPower, cardDefense, cardCost, cardDescription, id, 
             {/* <p>Cost: {cardCost}</p> */}
             <ImageContainer>
                 <Image className="image" src={cardImage}/>
+                <div>Artist: {cardArtist}</div>
             </ImageContainer>
             <CardDetails>
-                <p>Artist: {cardArtist}</p>
-                <p>Power: {cardPower}</p>
-                <p>Toughness: {cardDefense}</p>
+                <div>Power/Toughness: {cardPower}/{cardDefense}</div>
             </CardDetails>
+
             {/* <div>
                 {chosenCard?
                 <button onClick={()=>submitAction()}>Confirm</button>
@@ -30,25 +30,36 @@ export default Card
 
 
 const CardStyle = styled.div`
-   border: 2px inset #631414;
-   filter: drop-shadow(19px 13px 16px #000); 
+   border: 2px solid #631414;
+   /* filter: drop-shadow(19px 13px 16px #000);  */
    border-radius: 24px;
    background: slategrey;
    margin: auto;
-   max-width: 200px;
-   max-height: 300px;
+   width: 140px;
+   height: 250px;
    justify-items: center;
+   padding: 5px;
+   display: flex;
+   flex-direction:column;
+   align-items: center;
+   color: black;
    `
 
 const ImageContainer = styled.div`
-  max-width: 200px;
+  max-width: fit-content;
   max-height: 150px;
+  font-size:smaller;
+  text-align: center;
 `
 
 const CardDetails = styled.div`
     display: flex;
+    position:relative;
+    flex-direction: column;
+    margin: auto;
     padding: 2px;
     /* border: 2px solid black; */
+    font-size:smaller;
 `
 
 const Image = styled.img`
