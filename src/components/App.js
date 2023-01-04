@@ -38,21 +38,26 @@ const welcomeMessage = () => {
 
   return (
     <>
-    <header>
-      <NavBar handleLogOut={handleLogOut}/>
-    </header>
-    <Routes>
-      <Route path='/home' element={<Welcome guestUser={guestUser}/>}/>
-      <Route path='/signup' element={<SignUpForm setCurrentUser={setCurrentUser}/>}/>
-      <Route path='/login' element={<LogInForm setCurrentUser={setCurrentUser}/>}/>
-      <Route path='/newgame' element={<CreateOrJoinGame gameSession={gameSession} setGameSession={setGameSession} guestUser={guestUser} setGuestUser={setGuestUser}/>}/>
-      <Route path={`/game/${gameSession? gameSession.game_key : null}`} element={<GameBoard gameSession={gameSession} setGameSession={setGameSession} guestUser={guestUser}/>}/>
-      <Route path='/profile' element={<UserProfile currentUser={currentUser}/>}/>
-      <Route path='/leaderboard' element={<Leaderboard/>}/>
-    </Routes>
-    <Footer>
-    <p>A Not So Magical Gathering is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC.<br /> A Not So Magical Gathering is a simplified battle-card game based on <a href="https://company.wizards.com/en">Wizards of the Coast's</a> trading-card game <a href="https://magic.wizards.com/en">Magic: The Gathering</a> and was created as a cap-stone project for <a href="https://flatironschool.com/courses/coding-bootcamp/">Flatiron School's Software Engineering</a> course. <br /> Card images and Artist information provided by the <a href="https://scryfall.com/docs/api/cards">Scryfall API</a>.</p>
-    </Footer>
+    <Header>
+      <Title>A Not So Magical Gathering</Title>
+      <MenuItems>
+        <NavBar handleLogOut={handleLogOut}/>
+      </MenuItems>
+    </Header>
+    <Main>
+      <Routes>
+        <Route path='/home' element={<Welcome guestUser={guestUser}/>}/>
+        <Route path='/signup' element={<SignUpForm setCurrentUser={setCurrentUser}/>}/>
+        <Route path='/login' element={<LogInForm setCurrentUser={setCurrentUser}/>}/>
+        <Route path='/newgame' element={<CreateOrJoinGame gameSession={gameSession} setGameSession={setGameSession} guestUser={guestUser} setGuestUser={setGuestUser}/>}/>
+        <Route path={`/game/${gameSession? gameSession.game_key : null}`} element={<GameBoard gameSession={gameSession} setGameSession={setGameSession} guestUser={guestUser}/>}/>
+        <Route path='/profile' element={<UserProfile currentUser={currentUser}/>}/>
+        <Route path='/leaderboard' element={<Leaderboard/>}/>
+      </Routes>
+    </Main>
+      {/* <Footer>
+        <p>A Not So Magical Gathering is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC.<br /> A Not So Magical Gathering is a simplified battle-card game based on <a href="https://company.wizards.com/en">Wizards of the Coast's</a> trading-card game <a href="https://magic.wizards.com/en">Magic: The Gathering</a> and was created as a cap-stone project for <a href="https://flatironschool.com/courses/coding-bootcamp/">Flatiron School's Software Engineering</a> course. <br /> Card images and Artist information provided by the <a href="https://scryfall.com/docs/api/cards">Scryfall API</a>.</p>
+      </Footer> */}
 
     </>
   );
@@ -63,7 +68,32 @@ export default App;
 
 const Footer = styled.footer`
   bottom: 0;
-  width: 100%;
-  height: 2.5rem;
-  /* margin-top: auto; */
+  /* position: relative; */
+  /* width: 100%; */
+  min-height: 10vh;
+  background-color: rgba(0,0,0,0.9);
+  color: white;
+  margin-top: 30px
 `
+const Header = styled.header`
+  display: flex;
+  flex-direction: row;
+  height: 5vh;
+  background-color: green;
+  width: 100%;
+`
+
+const Title = styled.div`
+  font-size: large;
+  font-weight: bold;
+  justify-content: flex-start;
+`
+const MenuItems = styled.div`
+  justify-content: flex-end;
+  display: flex;
+`
+const Main = styled.div`
+  height: 95vh;
+`
+
+
