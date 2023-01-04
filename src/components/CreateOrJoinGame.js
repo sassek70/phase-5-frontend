@@ -4,7 +4,7 @@ import {UserContext} from "../context/UserContext"
 import styled from "styled-components"
 
 
-const CreateOrJoinGame = ({setGameSession, guestUser, setGuestUser, gameSession}) => {
+const CreateOrJoinGame = ({setGameSession, guestUser, setGuestUser}) => {
     // const [currentUser, setCurrentUser] = useState()
     const navigate = useNavigate()
     const [errors, setErrors] = useState()
@@ -103,12 +103,18 @@ const CreateOrJoinGame = ({setGameSession, guestUser, setGuestUser, gameSession}
             <form onSubmit={handleSubmit}>
               <InputContainer>
                 <Label htmlFor="username">Have a Game Key?</Label>
-                <input type="text" value={formData.gameKey} name="gameKey" placeholder="Enter a Game Key" onChange={handleChange} required onInvalid={invalidKey}></input>
+                <input type="text" value={formData.gameKey} name="gameKey" placeholder="Enter a Game Key" onChange={handleChange}></input>
               </InputContainer>
               <InputContainer>
                 <Button type="submit">Join!</Button>
               </InputContainer>
-
+              <InputContainer>
+                {errors?
+                    <p>{errors.error}</p>
+                    :
+                    <></>
+                  }
+              </InputContainer>
             </form>
             <InputContainer>
               <p>Click here to host a new game and receive a game key to give to a friend.</p>
@@ -123,11 +129,6 @@ const CreateOrJoinGame = ({setGameSession, guestUser, setGuestUser, gameSession}
             </InputContainer>
           }
         </FormContainer>
-        {errors?
-            <p>{errors.error}</p>
-            :
-            <></>
-        }
         </Body>
     )
 }

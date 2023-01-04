@@ -46,11 +46,11 @@ const UserProfile = () => {
         <Body>
         <StatsContainer>
             {updatedStats?
-            <>
-                <p>Games Played: {updatedStats.gamesPlayed}</p>
-                <p>Games Won: {updatedStats.gamesWon}</p>
-                <p>Win%: {updatedStats.win_rate}</p>
-            </>
+            <Stats>
+                <div>Games Played: {updatedStats.gamesPlayed}</div>
+                <div>Games Won: {updatedStats.gamesWon}</div>
+                <div>Win%: {updatedStats.win_rate}</div>
+            </Stats>
             :
             <>
                 <p>Loading stats</p>
@@ -79,6 +79,12 @@ const StatsContainer = styled.div`
   border: 2px solid #631414;
   padding: 10px;
   margin-top: 50px;
+`
+const Stats = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
 `
 
 const Body = styled.div`

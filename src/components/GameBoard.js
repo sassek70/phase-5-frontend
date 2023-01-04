@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import consumer from "../cable"
 import uuid from "react-uuid"
 import Card from "./Card"
@@ -7,7 +7,7 @@ import GameLog from "./GameLog"
 import {UserContext} from "../context/UserContext"
 import styled from "styled-components"
 
-console.log(consumer)
+// console.log(consumer)
 
 const GameBoard = ({gameSession, setGameSession, guestUser}) => {
     
@@ -25,6 +25,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
     const [gameLog, setGameLog] = useState([])
     const [errors, setErrors] = useState()
     const navigate = useNavigate()
+    const gameLogWindow = useRef(null)
     
     
     useEffect(() => {
@@ -50,16 +51,16 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                             break;
                         case "user-joined":
                             setGameSession(data.game)
-                            setGameLog(gameLog => ([ data.message, ...gameLog]))
+                            setGameLog(gameLog => ([ ...gameLog, data.message]))
                             break;
                         case "attack-declared":
-                            console.log(data.message)
+                            // console.log(data.message)
                             setIsAttacking(isAttacking => !isAttacking)
-                            setGameLog(gameLog => ([ data.message, ...gameLog]))
+                            setGameLog(gameLog => ([ ...gameLog, data.message]))
                             break;
                         case "defense-declared":
-                            console.log(data.message)
-                            setGameLog(gameLog => ([ data.message, ...gameLog]))
+                            // console.log(data.message)
+                            setGameLog(gameLog => ([ ...gameLog, data.message]))
                             break;
                         case "update-health":
                                 if(data.player === "host") {
@@ -87,15 +88,15 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                             }
 
                             setChosenCard(chosenCard => {})
-                            console.log(data.message)
-                            setGameLog(gameLog => ([ data.message, ...gameLog]))
+                            // console.log(data.message)
+                            setGameLog(gameLog => ([ ...gameLog, data.message]))
                             break;
                         case "draw":
                             alert("Neither player has cards remaining. Game is a draw")
                             navigate('/home')
                             break;
                         case "test":
-                            console.log(data)
+                            // console.log(data)
                             break;
                     }
                 }
@@ -115,6 +116,13 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
         createPlayerCards()
         
     },[isConnected])
+
+    useEffect(() => {
+        gameLogWindow.current?.scrollIntoView()
+    },[gameLog])
+
+
+
 
     const updateDataStore = (modelName, models) => {
         setDataStore(dataStore => {
@@ -186,15 +194,15 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                 game_id: gameSession.id,
                 user_card_id: selectedCardUserCardId
             }
-            console.log({
-                player_id: currentUser.id,
-                card_id:selectedCardId,
-                power: selectedCardPower,
-                defense: selectedCardDefense,
-                user_id: selectedCardUserId,
-                game_id: gameSession.id
+            // console.log({
+            //     player_id: currentUser.id,
+            //     card_id:selectedCardId,
+            //     power: selectedCardPower,
+            //     defense: selectedCardDefense,
+            //     user_id: selectedCardUserId,
+            //     game_id: gameSession.id
 
-            })
+            // })
             setChosenCard(card)
         }
     }
@@ -300,14 +308,13 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
 
     const handleGameOver = () => {
             alert("Game over")
-            console.log("game over")
+            setGameSession()
             navigate('/home')
     }
 
 
 
     const displayLog = gameLog.map((log) => <p key={uuid()}>{log}</p>)
-    console.log(gameSession)
    
     return (
         <>
@@ -320,13 +327,16 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
             : 
             <h3>Waiting for opponent</h3>
         }
-        <div>{`Game-key: ${gameSession.game_key}`}</div>
-        <button onClick={()=>updateServer()}>Add one to count</button>
+        {/* <div>{`Game-key: ${gameSession.game_key}`}</div> */}
+        {/* <button onClick={()=>updateServer()}>Add one to count</button> */}
         {/* <p>Count: {count}</p> */}
         <Body>
         <GameTable>
-        {/* <div>Oppenent's cards</div> */}
-        <h4>Opponent's Health:{opponentHealth}</h4> 
+        <ActionRow>
+            <SideActionContainer>
+            <h4>{currentUser.id === gameSession.host_user_id ? `Opponent's Health: ${opponentHealth}`:`Opponent's Health: ${hostHealth}`}</h4>
+            </SideActionContainer>
+        </ActionRow>
             <PlayerCardArea className="card-table">
                 {gameSession.opponent_id ? 
                     currentUser.id === gameSession.host_user_id ? 
@@ -356,9 +366,10 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                             <p>Waiting for opponent to join</p>}
             </PlayerCardArea>
         <GameActions className="server-log" >
-            {displayLog}
+            <div ref={gameLogWindow}>
+                {displayLog}
+            </div>
         </GameActions>
-        {/* <p>Your cards</p> */}
             <ActionRow>
                 <SideActionContainer style={{justifyContent: "flex-start"}}>
                 {chosenCard && isAttacking ? 
@@ -371,12 +382,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                 }
                 </SideActionContainer>
                 <CenterActionContainer>
-                    {activeTurn?
-                        <PlayerNotes>Your turn</PlayerNotes>
-                        :
-                        <PlayerNotes>Oppenent's turn</PlayerNotes>
-                    } 
-                    <br/>
+
                     {isAttacking ? 
                         activeTurn ? 
                         <PlayerNotes>Choose a card to attack with</PlayerNotes>
@@ -387,7 +393,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                     }
                 </CenterActionContainer>
                 <SideActionContainer style={{justifyContent: "flex-end"}}>
-                    <h4>Your Health: {hostHealth}</h4>
+                    <h4>{currentUser.id === gameSession.host_user_id ? `Your Health: ${hostHealth}`:`Your Health: ${opponentHealth}`}</h4>
                 </SideActionContainer>
             </ActionRow>
                         <PlayerCardArea className="card-table">
@@ -395,7 +401,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                     displayHostGameCards.length > 0 ?
                         <>
                             <CardPile>
-                                <p>{cardCounter(displayHostGameCards) < 5 ? `0 cards remaining` : `${cardCounter(displayHostGameCards) - 5} cards remaining`}</p>
+                                <p>{cardCounter(displayHostGameCards) < 5 ? `No cards remaining` : `${cardCounter(displayHostGameCards) - 5} cards remaining`}</p>
                             </CardPile>
                             {displayHostGameCards.slice(0,5)}
                         </>
@@ -403,21 +409,21 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                         <>
                             <CardPile>
                                 <p>No cards remaining</p>
-                            </CardPile>
                             {isAttacking ? 
                                 activeTurn ?
-                                    <button onClick={() => submitSkipAction()}>Skip Turn</button>
-                                    :
-                                    <button onClick={()=>endTurnNoCard()}>End Turn</button>
+                                <button onClick={() => submitSkipAction()}>Skip Turn</button>
                                 :
-                            <></>
+                                <button onClick={()=>endTurnNoCard()}>End Turn</button>
+                                :
+                                <></>
                             }  
+                            </CardPile>
                         </>
                     :
                     displayOpponentGameCards.length > 0 ?
                         <>
                             <CardPile>
-                                <p>{cardCounter(displayOpponentGameCards) < 5 ? `0 cards remaining` : `${cardCounter(displayOpponentGameCards) - 5} cards remaining`}</p>
+                                <p>{cardCounter(displayOpponentGameCards) < 5 ? `No cards remaining` : `${cardCounter(displayOpponentGameCards) - 5} cards remaining`}</p>
                             </CardPile>
                             {displayOpponentGameCards.slice(0,5)}
                         </>
@@ -425,15 +431,15 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                         <>
                             <CardPile>
                                 <p>No cards remaining</p>
-                            </CardPile>
                             {isAttacking ? 
                                 activeTurn ?
-                                    <button onClick={() => submitSkipAction()}>Skip Turn</button>
+                                        <button onClick={() => submitSkipAction()}>Skip Turn</button>
                                     :
-                                    <button onClick={()=>endTurnNoCard()}>End Turn</button>
+                                        <button onClick={()=>endTurnNoCard()}>End Turn</button>
                                 :
                                 <></>
                             }  
+                            </CardPile>
                         </>
                 }
             </PlayerCardArea>
@@ -465,43 +471,42 @@ const GameTable = styled.div`
     padding: 10px;
     background-color: rgba(0, 0, 0, 0.95);
     border-radius: 20px;
-
-
 `
 
 const PlayerCardArea = styled.div`
-  display: flex;
-  min-width : 75vw;
-  min-height: 340px;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  border: 5px inset #631414;
-  column-gap: 20px;
+    display: flex;
+    min-width : 75vw;
+    min-height: 340px;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    border: 5px inset #631414;
+    column-gap: 20px;
 `
 
 const CardPile = styled.div`
-   border: 2px solid #631414;
-   display: flex;
-   /* filter: drop-shadow(19px 13px 16px #000);  */
-   border-radius: 24px;
-   background: slategrey;
-   margin: auto;
-   width: 140px;
-   height: 250px;
-   justify-content: center;
-   align-items: center;
-   padding: 5px;
-   background: radial-gradient( #9E2929 0%, #000 20%, #521818 60%, #000 75%, #251E1E 96%, #1B1A1A 100%);
-   color: white;
-   `
+    border: 2px solid #631414;
+    display: flex;
+    flex-direction: column;
+    /* filter: drop-shadow(19px 13px 16px #000);  */
+    border-radius: 24px;
+    background: slategrey;
+    margin: auto;
+    width: 140px;
+    height: 250px;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+    background: radial-gradient( #9E2929 0%, #000 20%, #521818 60%, #000 75%, #251E1E 96%, #1B1A1A 100%);
+    color: white;
+`
 
 const GameActions = styled.ul`
-  border: 2px solid white;
-  overflow-y: scroll;
-  height: 200px;
-  width: 500px;
-  scroll-behavior: smooth;
-  color: white;
+    border: 2px solid white;
+    overflow-y: scroll;
+    height: 200px;
+    width: 500px;
+    scroll-behavior: smooth;
+    color: white;
 `
 const Body = styled.div`
     display: flex;
@@ -523,22 +528,22 @@ const PlayerNotes = styled.div`
 `
 
 const ActionRow = styled.div`
-height: 30px;
-min-width: 75vw;
-display: flex;
+    height: 30px;
+    min-width: 75vw;
+    display: flex;
 `
 
 const SideActionContainer = styled.div`
-height: 100%;
-width: 33%;
-display: flex;
-align-items: center;
+    height: 100%;
+    width: 33%;
+    display: flex;
+    align-items: center;
 `
 
 const CenterActionContainer = styled.div`
-height: 100%;
-display: flex;
-align-items: center;
-flex: 1 1 0;
-justify-content: center;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    flex: 1 1 0;
+    justify-content: center;
 `

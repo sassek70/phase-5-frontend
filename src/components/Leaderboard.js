@@ -23,18 +23,20 @@ const Leaderboard = () => {
                 <Tdnb>{user.username}</Tdnb>
                 <Td>{user.gamesPlayed}</Td>
                 <Td>{user.gamesWon}</Td>
-                <Td>{user.win_rate}%</Td>
+                <Td>{user.win_rate? user.win_rate : 0} %</Td>
             </tr>
         )
     })
 
     return (
-        <>
+        <Body>
+
+        <TableContainer>
             {userList?
             <Table>
                 <thead>
                     <tr>
-                        <Thnb>User</Thnb>
+                        <Thnb>Player</Thnb>
                         <Th>Games Played</Th>
                         <Th>Games Won</Th>
                         <Th>Win Rate</Th>
@@ -46,8 +48,9 @@ const Leaderboard = () => {
             </Table>
             :
             <p>Leaderboard loading</p>
-            }
-        </>
+        }
+        </TableContainer>
+        </Body>
     )
 }
 
@@ -83,4 +86,35 @@ const Td = styled.td`
 const Tdnb = styled.td`
     text-align: center;
     border-top: 2px ridge #311D1D;
+`
+
+
+
+const TableContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 50vw;
+  /* height: 20vw; */
+  background-color: rgba(0,0,0,0.9);
+  justify-content: center;
+  /* align-items: center; */
+  color: white;
+  border-radius: 20px;
+  border: 2px solid #631414;
+  padding: 30px 10px 30px 10px;
+  margin-top: 50px;
+`
+
+const InputContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+        
+`
+
+const Body = styled.div`
+  display: flex;
+  justify-content: center;
+  /* align-items: center; */
+
 `

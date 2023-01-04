@@ -39,9 +39,8 @@ const welcomeMessage = () => {
   return (
     <>
     <Header>
-      <Title>A Not So Magical Gathering</Title>
       <MenuItems>
-        <NavBar handleLogOut={handleLogOut}/>
+        <NavBar handleLogOut={handleLogOut} gameSession={gameSession} />
       </MenuItems>
     </Header>
     <Main>
@@ -49,7 +48,7 @@ const welcomeMessage = () => {
         <Route path='/home' element={<Welcome guestUser={guestUser}/>}/>
         <Route path='/signup' element={<SignUpForm setCurrentUser={setCurrentUser}/>}/>
         <Route path='/login' element={<LogInForm setCurrentUser={setCurrentUser}/>}/>
-        <Route path='/newgame' element={<CreateOrJoinGame gameSession={gameSession} setGameSession={setGameSession} guestUser={guestUser} setGuestUser={setGuestUser}/>}/>
+        <Route path='/newgame' element={<CreateOrJoinGame setGameSession={setGameSession} guestUser={guestUser} setGuestUser={setGuestUser}/>}/>
         <Route path={`/game/${gameSession? gameSession.game_key : null}`} element={<GameBoard gameSession={gameSession} setGameSession={setGameSession} guestUser={guestUser}/>}/>
         <Route path='/profile' element={<UserProfile currentUser={currentUser}/>}/>
         <Route path='/leaderboard' element={<Leaderboard/>}/>
@@ -78,16 +77,12 @@ const Footer = styled.footer`
 const Header = styled.header`
   display: flex;
   flex-direction: row;
-  height: 5vh;
+  height: 6vh;
   background-color: green;
   width: 100%;
 `
 
-const Title = styled.div`
-  font-size: large;
-  font-weight: bold;
-  justify-content: flex-start;
-`
+
 const MenuItems = styled.div`
   justify-content: flex-end;
   display: flex;

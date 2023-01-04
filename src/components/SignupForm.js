@@ -63,11 +63,13 @@ const SignUpForm = () => {
                     <Button type="submit">Sign Up</Button>
                 </InputContainer>
                 </form>
-                {errors?
-                    errors.errors.map(error => <p>{error}</p>)
-                    :
-                    <></>
-                }
+                <InputContainer>
+                    {errors?
+                        errors.errors.map(error => <p>{error}</p>)
+                        :
+                        <></>
+                    }
+                </InputContainer>
             </FormContainer>
         </Body>
     )
