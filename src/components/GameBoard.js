@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom"
 import GameLog from "./GameLog"
 import {UserContext} from "../context/UserContext"
 import styled from "styled-components"
-// import uuid from "react-uuid"
 
 console.log(consumer)
 
@@ -322,7 +321,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
             <h3>Waiting for opponent</h3>
         }
         <div>{`Game-key: ${gameSession.game_key}`}</div>
-        {/* <button onClick={()=>updateServer()}>Add one to count</button> */}
+        <button onClick={()=>updateServer()}>Add one to count</button>
         {/* <p>Count: {count}</p> */}
         <Body>
         <GameTable>
@@ -359,44 +358,39 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
         <GameActions className="server-log" >
             {displayLog}
         </GameActions>
-        <PlayerNotesContainer>
-
-            {activeTurn?
-                <PlayerNotes>Your turn</PlayerNotes>
-                :
-                <PlayerNotes>Oppenent's turn</PlayerNotes>
-            } 
-            <br/>
-            {isAttacking ? 
-                activeTurn ? 
-                <PlayerNotes>Choose a card to attack with</PlayerNotes>
-                :
-                <PlayerNotes>Choose a card to defend with</PlayerNotes>
-                :
-                <PlayerNotes>Waiting for opponent's action</PlayerNotes>
-            }
-        </PlayerNotesContainer>
-            <h4>Your Health: {hostHealth}</h4>
         {/* <p>Your cards</p> */}
-        <Buttons>
-
-        {chosenCard?
-                    isAttacking ? 
+            <ActionRow>
+                <SideActionContainer style={{justifyContent: "flex-start"}}>
+                {chosenCard && isAttacking ? 
                     activeTurn ? 
-                    <>
-                            <button onClick={() => submitAttackAction()}>Confirm Attack</button> 
-                        </>
-                        :
-                        <>  
-                            <button onClick={() => submitDefendAction()}>Confirm Defense</button>
-                        </>
+                    <button onClick={() => submitAttackAction()}>Confirm Attack</button> 
                     :
-                    <></>
+                    <button onClick={() => submitDefendAction()}>Confirm Defense</button>
                     :
                     <></>
                 }
-            </Buttons>
-            <PlayerCardArea className="card-table">
+                </SideActionContainer>
+                <CenterActionContainer>
+                    {activeTurn?
+                        <PlayerNotes>Your turn</PlayerNotes>
+                        :
+                        <PlayerNotes>Oppenent's turn</PlayerNotes>
+                    } 
+                    <br/>
+                    {isAttacking ? 
+                        activeTurn ? 
+                        <PlayerNotes>Choose a card to attack with</PlayerNotes>
+                        :
+                        <PlayerNotes>Choose a card to defend with</PlayerNotes>
+                        :
+                        <PlayerNotes>Waiting for opponent's action</PlayerNotes>
+                    }
+                </CenterActionContainer>
+                <SideActionContainer style={{justifyContent: "flex-end"}}>
+                    <h4>Your Health: {hostHealth}</h4>
+                </SideActionContainer>
+            </ActionRow>
+                        <PlayerCardArea className="card-table">
             {currentUser.id === gameSession.host_user_id ? 
                     displayHostGameCards.length > 0 ?
                         <>
@@ -483,7 +477,6 @@ const PlayerCardArea = styled.div`
   flex-wrap: nowrap;
   border: 5px inset #631414;
   column-gap: 20px;
-  padding: 30px;
 `
 
 const CardPile = styled.div`
@@ -510,7 +503,7 @@ const GameActions = styled.ul`
   scroll-behavior: smooth;
   color: white;
 `
-const Body = styled.body`
+const Body = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
@@ -518,13 +511,6 @@ const Body = styled.body`
     width: 100vw;
     color: white;
 `
-
-const Buttons = styled.div`
-    width: 75vw;
-    text-align: left;
-    margin: 25px;
-    `
-
 const PlayerNotesContainer = styled.div`
     display: flex;
     flex-direction: row;
@@ -534,4 +520,25 @@ const PlayerNotes = styled.div`
     display: flex;
     justify-content: left;
     padding: 5px;
+`
+
+const ActionRow = styled.div`
+height: 30px;
+min-width: 75vw;
+display: flex;
+`
+
+const SideActionContainer = styled.div`
+height: 100%;
+width: 33%;
+display: flex;
+align-items: center;
+`
+
+const CenterActionContainer = styled.div`
+height: 100%;
+display: flex;
+align-items: center;
+flex: 1 1 0;
+justify-content: center;
 `

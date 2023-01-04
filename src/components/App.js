@@ -50,7 +50,7 @@ const welcomeMessage = () => {
       <Route path='/profile' element={<UserProfile currentUser={currentUser}/>}/>
       <Route path='/leaderboard' element={<Leaderboard/>}/>
     </Routes>
-    <Footer className="discalimer">
+    <Footer>
     <p>A Not So Magical Gathering is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC.<br /> A Not So Magical Gathering is a simplified battle-card game based on <a href="https://company.wizards.com/en">Wizards of the Coast's</a> trading-card game <a href="https://magic.wizards.com/en">Magic: The Gathering</a> and was created as a cap-stone project for <a href="https://flatironschool.com/courses/coding-bootcamp/">Flatiron School's Software Engineering</a> course. <br /> Card images and Artist information provided by the <a href="https://scryfall.com/docs/api/cards">Scryfall API</a>.</p>
     </Footer>
 
@@ -62,9 +62,8 @@ export default App;
 
 
 const Footer = styled.footer`
-  /* position: absolute; */
-  /* bottom: 0; */
-  /* width: 100%; */
-  /* height: 2.5rem; */
-  margin-top: auto;
+  bottom: 0;
+  width: 100%;
+  height: 2.5rem;
+  /* margin-top: auto; */
 `
