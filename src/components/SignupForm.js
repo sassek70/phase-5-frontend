@@ -1,6 +1,7 @@
 import { useContext, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import {UserContext} from "../context/UserContext"
+import styled from "styled-components"
 
 
 const SignUpForm = () => {
@@ -47,23 +48,81 @@ const SignUpForm = () => {
 
 
     return (
-        <>
-        <form onSubmit={handleSubmit}>
-            <label htmlFor="username">Username:</label>
-            <input type="text" value={formData.username} name="username" placeholder="Enter a Username" onChange={handleChange}></input>
-
-            <label htmlFor="password">Password:</label>
-            <input type="text" value={formData.password} name="password" placeholder="Enter a password" onChange={handleChange}></input>
-
-            <button type="submit">Sign Up</button>
-        </form>
-        {errors?
-            errors.errors.map(error => <p>{error}</p>)
-        :
-        <></>
-        }
-        </>
+        <Body>
+            <FormContainer>
+                <form onSubmit={handleSubmit}>
+                <InputContainer>
+                    <Label htmlFor="username">Username:</Label>
+                    <input type="text" value={formData.username} name="username" placeholder="Enter a Username" onChange={handleChange}></input>
+                </InputContainer>
+                <InputContainer>
+                    <Label htmlFor="password">Password:</Label>
+                    <input type="text" value={formData.password} name="password" placeholder="Enter a password" onChange={handleChange}></input>
+                </InputContainer>
+                <InputContainer>
+                    <Button type="submit">Sign Up</Button>
+                </InputContainer>
+                </form>
+                <InputContainer>
+                    {errors?
+                        errors.errors.map(error => <p>{error}</p>)
+                        :
+                        <></>
+                    }
+                </InputContainer>
+            </FormContainer>
+        </Body>
     )
 }
 
 export default SignUpForm
+
+
+
+const FormContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 30vw;
+  height: 20vw;
+  background-color: rgba(0,0,0,0.9);
+  justify-content: center;
+  /* align-items: center; */
+  color: white;
+  border-radius: 20px;
+  border: 2px solid #631414;
+  padding: 10px;
+  margin-top: 50px;
+`
+
+const InputContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+        
+`
+
+const Body = styled.div`
+  display: flex;
+  justify-content: center;
+  /* align-items: center; */
+
+`
+
+
+const Button = styled.button`
+  border-radius: 20px;
+  color: red;
+  border: 2px solid #631414;
+  background-color: rgba(0,0,0,0.9);
+  padding: 10px;
+
+  &:hover {
+    background-color: #631414;
+    cursor: pointer;
+    color: black;
+  }
+`
+
+const Label = styled.label`
+  padding-right: 10px;
+`

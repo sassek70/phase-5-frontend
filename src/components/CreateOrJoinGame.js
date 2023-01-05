@@ -1,9 +1,10 @@
 import { useContext, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import {UserContext} from "../context/UserContext"
+import styled from "styled-components"
 
 
-const CreateOrJoinGame = ({setGameSession, guestUser, setGuestUser, gameSession}) => {
+const CreateOrJoinGame = ({setGameSession, guestUser, setGuestUser}) => {
     // const [currentUser, setCurrentUser] = useState()
     const navigate = useNavigate()
     const [errors, setErrors] = useState()
@@ -15,6 +16,7 @@ const CreateOrJoinGame = ({setGameSession, guestUser, setGuestUser, gameSession}
 
     const handleChange = (e) => {
         const {name, value} = e.target
+        e.target.setCustomValidity("")
         setFormData((formData) => ({...formData, [name]: value}))
     }
 
@@ -36,6 +38,7 @@ const CreateOrJoinGame = ({setGameSession, guestUser, setGuestUser, gameSession}
           res.json().then(newGame => {
         setGameSession(newGame)
         setGameKey(newGame.game_key)
+        navigate(`/game/${newGame.game_key}`)
       })
     } else {
       res.json().then(errors => console.log(errors))
@@ -89,39 +92,96 @@ const CreateOrJoinGame = ({setGameSession, guestUser, setGuestUser, gameSession}
     // }}
         }
 
-    const startGame = () => {
-      navigate(`/game/${gameKey}`)
-    } 
+        const invalidKey = (e) => {
+          return e.target.setCustomValidity("Please enter a game key")
+        }
 
     return (
-        <>
+        <Body>
+          <FormContainer>
         {currentUser?
-        <>
+          <>
             <form onSubmit={handleSubmit}>
-                <label htmlFor="username">Enter a Game Key:</label>
-                <input type="text" value={formData.gameKey} name="gameKey" placeholder="Enter a Game Key" onChange={handleChange}></input>
-
-                <button type="submit">Join!</button>
-            </form>            
-            <button onClick={()=>handleClick()}>Generate Game Key</button>
-        </>
-         :
-         <>
-         <p>You must be logged in to play</p>
-         </>
-        }
-        {gameKey?
-        <button onClick={()=>startGame()}>Start Game</button>
-        :
-        <></>  
-        }
-        {errors?
-            <p>{errors.error}</p>
+              <InputContainer>
+                <Label htmlFor="username">Have a Game Key?</Label>
+                <input type="text" value={formData.gameKey} name="gameKey" placeholder="Enter a Game Key" required onInvalid={invalidKey} onChange={handleChange}></input>
+              </InputContainer>
+              <InputContainer>
+                <Button type="submit">Join!</Button>
+              </InputContainer>
+              <InputContainer>
+                {errors?
+                    <p>{errors.error}</p>
+                    :
+                    <></>
+                  }
+              </InputContainer>
+            </form>
+            <InputContainer>
+              <p>Click here to host a new game and receive a game key to give to a friend.</p>
+            </InputContainer>
+              <InputContainer>
+                <Button onClick={()=>handleClick()}>Create Game</Button>
+              </InputContainer>
+          </>
             :
-            <></>
-        }
-        </>
+            <InputContainer>
+              You must be logged in to play
+            </InputContainer>
+          }
+        </FormContainer>
+        </Body>
     )
 }
 
 export default CreateOrJoinGame
+
+
+const FormContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 30vw;
+  height: 20vw;
+  background-color: rgba(0,0,0,0.9);
+  justify-content: center;
+  /* align-items: center; */
+  color: white;
+  border-radius: 20px;
+  border: 2px solid #631414;
+  padding: 10px;
+  margin-top: 50px;
+`
+
+const Body = styled.div`
+  display: flex;
+  justify-content: center;
+  /* align-items: center; */
+
+`
+
+
+const Button = styled.button`
+  border-radius: 20px;
+  color: red;
+  border: 2px solid #631414;
+  background-color: rgba(0,0,0,0.9);
+  padding: 10px;
+
+  &:hover {
+    background-color: #631414;
+    cursor: pointer;
+    color: black;
+  }
+  
+`
+
+const InputContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+        
+`
+const Label = styled.label`
+  padding-right: 10px;
+`
+

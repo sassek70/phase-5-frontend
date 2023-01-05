@@ -1,13 +1,13 @@
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import consumer from "../cable"
 import uuid from "react-uuid"
 import Card from "./Card"
 import { useNavigate } from "react-router-dom"
-import { Subscription } from "@rails/actioncable"
 import GameLog from "./GameLog"
 import {UserContext} from "../context/UserContext"
+import styled from "styled-components"
 
-console.log(consumer)
+// console.log(consumer)
 
 const GameBoard = ({gameSession, setGameSession, guestUser}) => {
     
@@ -18,13 +18,15 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
     const [isConnected, setIsConnected] = useState(false)
     const [dataStore, setDataStore] = useState({})
     const [activeTurn, setActiveTurn] = useState(false)
-    const [chosenCard, setChosenCard] = useState()
+    const [chosenCard, setChosenCard] = useState({})
     const [isAttacking, setIsAttacking] = useState(false)
     const [hostHealth, setHostHealth] = useState(gameSession.host_player_health)
     const [opponentHealth, setOpponentHealth] = useState(gameSession.opponent_player_health)
     const [gameLog, setGameLog] = useState([])
     const [errors, setErrors] = useState()
+    const [attackingCardId, setAttackingCardId] = useState()
     const navigate = useNavigate()
+    const gameLogWindow = useRef(null)
     
     
     useEffect(() => {
@@ -50,16 +52,17 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                             break;
                         case "user-joined":
                             setGameSession(data.game)
-                            setGameLog(gameLog => ([ data.message, ...gameLog]))
+                            setGameLog(gameLog => ([ ...gameLog, data.message]))
                             break;
                         case "attack-declared":
-                            console.log(data.message)
+                            console.log(data)
                             setIsAttacking(isAttacking => !isAttacking)
-                            setGameLog(gameLog => ([ data.message, ...gameLog]))
+                            setAttackingCardId(data.player_action.attacking_user_card.id)
+                            setGameLog(gameLog => ([ ...gameLog, data.message]))
                             break;
                         case "defense-declared":
-                            console.log(data.message)
-                            setGameLog(gameLog => ([ data.message, ...gameLog]))
+                            // console.log(data.message)
+                            setGameLog(gameLog => ([ ...gameLog, data.message]))
                             break;
                         case "update-health":
                                 if(data.player === "host") {
@@ -87,17 +90,24 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                             }
 
                             setChosenCard(chosenCard => {})
-                            console.log(data.message)
-                            setGameLog(gameLog => ([ data.message, ...gameLog]))
+                            setAttackingCardId()
+                            // console.log(data.message)
+                            setGameLog(gameLog => ([ ...gameLog, data.message]))
                             break;
                         case "draw":
                             alert("Neither player has cards remaining. Game is a draw")
                             navigate('/home')
                             break;
+                        case "test":
+                            // console.log(data)
+                            break;
                     }
                 }
             })
-            return () => consumer.disconnect()
+            return () => {
+                consumer.disconnect()
+                setGameSession()
+            }
     },[])
     
     useEffect(() => {
@@ -112,6 +122,14 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
         createPlayerCards()
         
     },[isConnected])
+
+    useEffect(() => {
+        // console.log(gameLogWindow.current)
+        gameLogWindow.current?.scrollIntoView({behavior: "smooth", block: "nearest"})
+    },[gameLog])
+
+
+
 
     const updateDataStore = (modelName, models) => {
         setDataStore(dataStore => {
@@ -162,9 +180,17 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
         //     res.json().then(updatedCount => setCount(updatedCount))
         //     }
         // })
+        consumer.send({
+            command: "message",
+            // identifier:{
+                channel: "GameSessionChannel",
+                game_key: gameSession.game_key,
+            // },
+            data:JSON.stringify({message:"button clicked"})
+        })
     }
     const selectedCard = (selectedCardId, selectedCardPower, selectedCardDefense, selectedCardUserId, selectedCardUserCardId) => {
-        setChosenCard()
+        setChosenCard({})
         if (isAttacking === true && selectedCardUserId === currentUser.id) {
             let card = {
                 player_id: currentUser.id,
@@ -175,15 +201,15 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                 game_id: gameSession.id,
                 user_card_id: selectedCardUserCardId
             }
-            console.log({
-                player_id: currentUser.id,
-                card_id:selectedCardId,
-                power: selectedCardPower,
-                defense: selectedCardDefense,
-                user_id: selectedCardUserId,
-                game_id: gameSession.id
+            // console.log({
+            //     player_id: currentUser.id,
+            //     card_id:selectedCardId,
+            //     power: selectedCardPower,
+            //     defense: selectedCardDefense,
+            //     user_id: selectedCardUserId,
+            //     game_id: gameSession.id
 
-            })
+            // })
             setChosenCard(card)
         }
     }
@@ -194,14 +220,46 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
     let displayHostGameCards = filteredHostGameCards.map((user_card) => {
         const {id, cardName, cardPower, cardDefense, cardCost, cardDescription, cardImage, cardArtist} = user_card.card
         return (
-                <Card key={uuid()} id={id} userCardId={user_card.id} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} selectedCard={selectedCard} activeTurn={activeTurn} user_id={user_card.user_id} chosenCard={chosenCard} cardImage={cardImage} cardArtist={cardArtist}/>
+                <Card
+                    key={uuid()}
+                    id={id}
+                    userCardId={user_card.id}
+                    cardName={cardName}
+                    cardPower={cardPower}
+                    cardDefense={cardDefense}
+                    cardCost={cardCost}
+                    cardDescription={cardDescription}
+                    selectedCard={selectedCard}
+                    activeTurn={activeTurn}
+                    user_id={user_card.user_id}
+                    cardImage={cardImage}
+                    cardArtist={cardArtist}
+                    isAttackingCard={user_card.id === attackingCardId}
+                    isSelected={user_card.id === chosenCard?.user_card_id}
+                />
         )
     })
 
     let displayOpponentGameCards = filteredOpponentGameCards.map((user_card) => {
         const {id, cardName, cardPower, cardDefense, cardCost, cardDescription, cardImage, cardArtist} = user_card.card
         return (
-                <Card key={uuid()} id={id} cardName={cardName} userCardId={user_card.id} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} selectedCard={selectedCard} activeTurn={activeTurn} user_id={user_card.user_id} chosenCard={chosenCard} cardImage={cardImage} cardArtist={cardArtist}/>
+                <Card
+                    key={uuid()}
+                    id={id}
+                    cardName={cardName}
+                    userCardId={user_card.id}
+                    cardPower={cardPower}
+                    cardDefense={cardDefense}
+                    cardCost={cardCost}
+                    cardDescription={cardDescription}
+                    selectedCard={selectedCard}
+                    activeTurn={activeTurn}
+                    user_id={user_card.user_id}
+                    cardImage={cardImage}
+                    cardArtist={cardArtist}
+                    isAttackingCard={user_card.id === attackingCardId}
+                    isSelected={user_card.id === chosenCard?.user_card_id}
+                />
         )
     })
 
@@ -289,131 +347,236 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
 
     const handleGameOver = () => {
             alert("Game over")
-            console.log("game over")
+            setGameSession()
             navigate('/home')
     }
 
 
 
-    const displayLog = gameLog.map((log) => <p>{log}</p>)
-
+    const displayLog = gameLog.map((log) => <p key={uuid()}>{log}</p>)
    
     return (
         <>
-        <h2>Game Board</h2>
         {/* <h3>{`Player 1: ${currentUser? currentUser.username : guestUser}`}</h3> */}
-        <h3>{`Player 1: ${currentUser.username}`}</h3>
-        <h4>Health: {hostHealth}</h4>
+        {/* <h3>{`Player 1: ${currentUser.username}`}</h3>
         {gameSession.opponent_id ? 
             <>
             <h3>{`Player 2: ${gameSession.opponent_id}`}</h3> 
-            <h4>Health:{opponentHealth}</h4> 
             </>
             : 
             <h3>Waiting for opponent</h3>
-        }
-        <p>{`Game-key: ${gameSession.game_key}`}</p>
-        {activeTurn?
-            <p>Your turn</p>
-            :
-            <p>Oppenent's turn</p>
-        } 
-        <button onClick={()=>updateServer()}>Add one to count</button>
-        <p>Count: {count}</p>
-        <div className="game-table">
-            <div className="card-table">
-                <p>Oppenent's cards</p>
+        } */}
+        {/* <div>{`Game-key: ${gameSession.game_key}`}</div> */}
+        {/* <button onClick={()=>updateServer()}>Add one to count</button> */}
+        {/* <p>Count: {count}</p> */}
+        <Body>
+        <GameTable>
+        <ActionRow>
+            <SideActionContainer>
+            <h4>{currentUser.id === gameSession.host_user_id ? `Opponent's Health: ${opponentHealth}`:`Opponent's Health: ${hostHealth}`}</h4>
+            </SideActionContainer>
+        </ActionRow>
+            <PlayerCardArea className="card-table">
                 {gameSession.opponent_id ? 
                     currentUser.id === gameSession.host_user_id ? 
-                        displayOpponentGameCards.length > 0 ?
-                        <>
-                            <p>{`${cardCounter(displayOpponentGameCards)} remaining`}</p>
-                            {displayOpponentGameCards.slice(0,6)}
+                    displayOpponentGameCards.length > 0 ?
+                    <>
+                            {displayOpponentGameCards.slice(0,5)}
+                            <CardPile>
+                                <p>{cardCounter(displayOpponentGameCards) < 5 ? `0 cards remaining` : `${cardCounter(displayOpponentGameCards) - 5} cards remaining`}</p>
+                            </CardPile>
                         </>
                             :
-                            <p>No cards remaining</p>
-                        : displayHostGameCards.length > 0 ?
-                        <>
-                            <p>{`${cardCounter(displayHostGameCards)} cards remaining`}</p>
-                            {displayHostGameCards.slice(0,6)}
+                            <CardPile>
+                                <p>No cards remaining</p>
+                            </CardPile>
+                            : displayHostGameCards.length > 0 ?
+                            <>
+                            {displayHostGameCards.slice(0,5)}
+                            <CardPile>
+                                <p>{cardCounter(displayHostGameCards) < 5 ? `0 cards remaining` : `${cardCounter(displayHostGameCards) - 5} cards remaining`}</p>
+                            </CardPile>
                         </>
                             :
-                            <p>No cards remaining</p>
+                            <CardPile>
+                                <p>No cards remaining</p>
+                            </CardPile>
+                            :
+                            <p>Waiting for opponent to join</p>}
+            </PlayerCardArea>
+        <GameActions className="server-log" >
+                {displayLog}
+            <div ref={gameLogWindow}></div>
+        </GameActions>
+            <ActionRow>
+                <SideActionContainer style={{justifyContent: "flex-start"}}>
+                {chosenCard && isAttacking ? 
+                    activeTurn ? 
+                    <button onClick={() => submitAttackAction()}>Confirm Attack</button> 
                     :
-                    <p>Waiting for opponent to join</p>}
-            </div>
-            <div className="card-table">
-            <p>Your cards</p>
-            {isAttacking ? 
-                activeTurn ? 
-                <p>Choose a card to attack with</p>
-                :
-                <p>Choose a card to defend with</p>
-            :
-                <p>Waiting for opponent's action</p>
-            }
+                    <button onClick={() => submitDefendAction()}>Confirm Defense</button>
+                    :
+                    <></>
+                }
+                </SideActionContainer>
+                <CenterActionContainer>
+
+                    {isAttacking ? 
+                        activeTurn ? 
+                        <PlayerNotes>Choose a card to attack with</PlayerNotes>
+                        :
+                        <PlayerNotes>Choose a card to defend with</PlayerNotes>
+                        :
+                        <PlayerNotes>Waiting for opponent's action</PlayerNotes>
+                    }
+                </CenterActionContainer>
+                <SideActionContainer style={{justifyContent: "flex-end"}}>
+                    <h4>{currentUser.id === gameSession.host_user_id ? `Your Health: ${hostHealth}`:`Your Health: ${opponentHealth}`}</h4>
+                </SideActionContainer>
+            </ActionRow>
+                        <PlayerCardArea className="card-table">
             {currentUser.id === gameSession.host_user_id ? 
                     displayHostGameCards.length > 0 ?
                         <>
-                            <p>{`${cardCounter(displayHostGameCards)} cards remaining`}</p>
-                            {displayHostGameCards.slice(0,6)}
+                            <CardPile>
+                                <p>{cardCounter(displayHostGameCards) < 5 ? `No cards remaining` : `${cardCounter(displayHostGameCards) - 5} cards remaining`}</p>
+                            </CardPile>
+                            {displayHostGameCards.slice(0,5)}
                         </>
                         : 
                         <>
-                            <p>No cards remaining</p>
+                            <CardPile>
+                                <p>No cards remaining</p>
                             {isAttacking ? 
                                 activeTurn ?
-                                    <button onClick={() => submitSkipAction()}>Skip Turn</button>
-                                    :
-                                    <button onClick={()=>endTurnNoCard()}>End Turn</button>
+                                <button onClick={() => submitSkipAction()}>Skip Turn</button>
                                 :
-                            <></>
+                                <button onClick={()=>endTurnNoCard()}>End Turn</button>
+                                :
+                                <></>
                             }  
+                            </CardPile>
                         </>
                     :
                     displayOpponentGameCards.length > 0 ?
                         <>
-                            <p>{`${cardCounter(displayOpponentGameCards)} cards remaining`}</p>
-                            {displayOpponentGameCards.slice(0,6)}
+                            <CardPile>
+                                <p>{cardCounter(displayOpponentGameCards) < 5 ? `No cards remaining` : `${cardCounter(displayOpponentGameCards) - 5} cards remaining`}</p>
+                            </CardPile>
+                            {displayOpponentGameCards.slice(0,5)}
                         </>
                         : 
                         <>
-                            <p>No cards remaining</p>
+                            <CardPile>
+                                <p>No cards remaining</p>
                             {isAttacking ? 
                                 activeTurn ?
-                                    <button onClick={() => submitSkipAction()}>Skip Turn</button>
+                                        <button onClick={() => submitSkipAction()}>Skip Turn</button>
                                     :
-                                    <button onClick={()=>endTurnNoCard()}>End Turn</button>
+                                        <button onClick={()=>endTurnNoCard()}>End Turn</button>
                                 :
                                 <></>
                             }  
+                            </CardPile>
                         </>
                 }
+            </PlayerCardArea>
+            </GameTable>
+            <div>
+
             </div>
-            {chosenCard?
-                isAttacking ? 
-                    activeTurn ? 
-                    <>
-                        <button onClick={() => submitAttackAction()}>Confirm Attack</button> 
-                    </>
-                    :
-                    <>  
-                        <button onClick={() => submitDefendAction()}>Confirm Defense</button>
-                    </>
-                :
-                <></>
-            :
-            <></>
-            }
-        </div>
-        <ul className="server-log" >
-            {displayLog}
-        </ul>
 
 
+
+        </Body>
         </>
 
     )
 }
 
 export default GameBoard
+
+
+const GameTable = styled.div`
+    display: flex;
+    flex-direction: column;
+    border: 2px solid black;
+    justify-content: center;
+    align-items: center;
+    /* margin-left: auto; */
+    /* margin-right: auto; */
+    min-width: 80vw;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.95);
+    border-radius: 20px;
+`
+
+const PlayerCardArea = styled.div`
+    display: flex;
+    min-width : 75vw;
+    min-height: 340px;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    border: 5px inset #631414;
+    column-gap: 20px;
+`
+
+const CardPile = styled.div`
+    border: 2px solid #631414;
+    display: flex;
+    flex-direction: column;
+    /* filter: drop-shadow(19px 13px 16px #000);  */
+    border-radius: 24px;
+    background: slategrey;
+    margin: auto;
+    width: 140px;
+    height: 250px;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+    background: radial-gradient( #9E2929 0%, #000 20%, #521818 60%, #000 75%, #251E1E 96%, #1B1A1A 100%);
+    color: white;
+`
+
+const GameActions = styled.ul`
+    border: 2px solid white;
+    overflow-y: scroll;
+    height: 200px;
+    width: 500px;
+    scroll-behavior: smooth;
+    color: white;
+`
+const Body = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    color: white;
+    margin-top: 40px;
+`
+const PlayerNotes = styled.div`
+    display: flex;
+    justify-content: left;
+    padding: 5px;
+`
+
+const ActionRow = styled.div`
+    height: 30px;
+    min-width: 75vw;
+    display: flex;
+`
+
+const SideActionContainer = styled.div`
+    height: 100%;
+    width: 33%;
+    display: flex;
+    align-items: center;
+`
+
+const CenterActionContainer = styled.div`
+    height: 100%;
+    display: flex;
+    align-items: center;
+    flex: 1 1 0;
+    justify-content: center;
+`

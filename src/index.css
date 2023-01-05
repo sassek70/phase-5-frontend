@@ -1,43 +1,45 @@
 body {
-background-color: rgba(0, 106, 138, 0.938);
-}
-
-
-.player-card {
+  /* min-height: 100%; */
   /* display: flex; */
-  border: 2px solid black;
-  margin: auto;
-  max-width: 300px;
-  max-height: 300px;
+  margin: 0;
+  background-image: url("../public/images/backgroundImage.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
 }
 
-.image {
-  max-width: 100%;
-  max-height: 100%;
+
+
+.nav-links {
+  margin-left: 10px;
+  margin-bottom: 5px;
+  color: white;
+  background-color: rgba(0,0,0,0.9);
+  border-radius: 5px;
+  color: #631414;
+  border: 0px solid #631414;
+  text-decoration: none;
+  padding: 0px 3px 0px 3px;
+
 }
 
-.image-container {
-  max-width: 150px;
-  max-height: 200px;
-}
 
-.chosen-player-card {
-  /* display: flex; */
-  border: 2px solid red;
-  margin: auto;
-}
 
-.card-table {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-}
+.nav-links:focus,
+.nav-links:hover,
+.nav-links:active {
+  margin-left: 10px;
+  margin-bottom: 5px;
+  color: white;
+  border-radius: 5px;
+  color: #631414;
+  border: 0px solid #631414;
+  text-decoration: none;
+  background-color: #631414;
+  cursor: pointer;
+  color: black;
+  padding: 0px 3px 0px 3px;
 
-.server-log {
-  border: 2px solid black;
-  overflow-y: scroll;
-  height: 200px;
-  width: 500px;
-  scroll-behavior: smooth;
-}
 
+}
