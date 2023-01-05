@@ -122,11 +122,12 @@ const StatsContainer = styled.div`
   border: 2px solid #631414;
   padding: 10px;
   margin-top: 50px;
+  align-items: center;
 `
 const Stats = styled.div`
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     
 `
 
