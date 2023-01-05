@@ -11,11 +11,11 @@ const Welcome = ({guestUser}) => {
 
     return (
         <>
-            {currentUser?
+            {/* {currentUser?
                 <h2>{currentUser ? `Welcome ${currentUser.username}` : <></>}</h2>
                 :
                 <></>
-            }
+            } */}
         <Body>
 
         <HowToPlay>

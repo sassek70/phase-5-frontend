@@ -30,9 +30,7 @@ const NavBar = ({handleLogOut, gameSession}) => {
                                 <></>
                                 :
                                 <>
-                                <LinkWrapper>
-                                <NavLink className="nav-links" to='/login' name='Log In'>Log In</NavLink>
-                                </LinkWrapper>
+
                                 <LinkWrapper>
                                 <NavLink className="nav-links" to='/signup' name='Sign Up'>Sign Up</NavLink>
                                 </LinkWrapper>
@@ -52,16 +50,23 @@ const NavBar = ({handleLogOut, gameSession}) => {
                                 <NavLink className="nav-links" to='/leaderboard' name='Leaderboard'>Leaderboard</NavLink>
                             </LinkWrapper>
                     </NavBarRow>
-                    <div>
+                    {/* <CurrentProfile> */}
                         {currentUser ? 
-                            <div style={{color: '#631414'}}>
+                            <UserContainer>
                                 Logged in as: {currentUser.username}
                                 <Button onClick={() => handleLogOut()}>Log Out</Button>
-                            </div>
+                            </UserContainer>
                             : 
-                            <></>
+                            <>
+                            <UserContainer>
+                                Not Logged in
+                                <LinkWrapper>
+                                    <NavLink className="nav-links" to='/login' name='Log In'>Log In</NavLink>
+                                </LinkWrapper>
+                            </UserContainer>
+                            </>
                             }
-                    </div>
+                    {/* </CurrentProfile> */}
                 </RightSideContainer>
             {/* </NavBarRow> */}
             </>
@@ -122,7 +127,7 @@ const LinkWrapper = styled.div`
 
 const Button = styled.button`
     margin-left: 10px;
-    margin-bottom: 5px;
+    /* margin-bottom: 5px; */
     color: white;
     background-color: rgba(0,0,0,0.9);
     border-radius: 5px;
@@ -134,4 +139,12 @@ const Button = styled.button`
     cursor: pointer;
     color: black;
   }
+`
+
+const UserContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    color: #631414;
+    padding: 5px;
 `
