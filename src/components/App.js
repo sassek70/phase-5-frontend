@@ -39,9 +39,9 @@ const welcomeMessage = () => {
   return (
     <>
     <Header>
-      <MenuItems>
+      {/* <MenuItems> */}
         <NavBar handleLogOut={handleLogOut} gameSession={gameSession} />
-      </MenuItems>
+      {/* </MenuItems> */}
     </Header>
     <Main>
       <Routes>
@@ -54,9 +54,9 @@ const welcomeMessage = () => {
         <Route path='/leaderboard' element={<Leaderboard/>}/>
       </Routes>
     </Main>
-      {/* <Footer>
+      <Footer>
         <p>A Not So Magical Gathering is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC.<br /> A Not So Magical Gathering is a simplified battle-card game based on <a href="https://company.wizards.com/en">Wizards of the Coast's</a> trading-card game <a href="https://magic.wizards.com/en">Magic: The Gathering</a> and was created as a cap-stone project for <a href="https://flatironschool.com/courses/coding-bootcamp/">Flatiron School's Software Engineering</a> course. <br /> Card images and Artist information provided by the <a href="https://scryfall.com/docs/api/cards">Scryfall API</a>.</p>
-      </Footer> */}
+      </Footer>
 
     </>
   );
@@ -72,7 +72,7 @@ const Footer = styled.footer`
   min-height: 10vh;
   background-color: rgba(0,0,0,0.9);
   color: white;
-  margin-top: 30px
+  margin-top: 30px;
 `
 const Header = styled.header`
   display: flex;
@@ -88,7 +88,7 @@ const MenuItems = styled.div`
   display: flex;
 `
 const Main = styled.div`
-  height: 95vh;
+  min-height: 95vh;
 `
 
 

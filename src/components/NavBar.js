@@ -11,15 +11,15 @@ const NavBar = ({handleLogOut, gameSession}) => {
 
     return(
             <>
-            <NavBarRow>
-                <SideContainer>
+            {/* <NavBarRow> */}
+                <LeftSideContainer style={{backgroundColor: 'red'}}>
                     <Title>A Not So Magical Gathering</Title>
-                </SideContainer>
-                <CenterContainer>
+                </LeftSideContainer>
+                <CenterContainer style={{backgroundColor: 'blue'}}>
                     {gameSession ? `Game Key: ${gameSession.game_key}` : <></>} 
                 </CenterContainer>
-                <SideContainer style={{justifyContent: 'flex-end', flexDirection: 'column'}}>
-                    <LinkContainer>
+                <RightSideContainer >
+                    <NavBarRow>
                         <LinkWrapper>
                                 <NavLink to='/home' name="Home">Home</NavLink>
                             </LinkWrapper>
@@ -50,12 +50,12 @@ const NavBar = ({handleLogOut, gameSession}) => {
                             <LinkWrapper>
                                 <NavLink to='/leaderboard' name='Leaderboard'>Leaderboard</NavLink>
                             </LinkWrapper>
-                    </LinkContainer>
+                    </NavBarRow>
                     <div>
                         {currentUser ? `Logged in as: ${currentUser.username}` : <></>}
                     </div>
-                </SideContainer>
-            </NavBarRow>
+                </RightSideContainer>
+            {/* </NavBarRow> */}
             </>
     )
 }
@@ -64,26 +64,36 @@ export default NavBar
 
 
 const NavBarRow = styled.nav`
-height: 40px;
-min-width: 75vw;
-display: flex;
-padding-top: 5px;
-display: flex;
-flex: 1 1 0;
-`
-
-const SideContainer = styled.div`
 height: 100%;
-width: 33%;
+/* min-width: 75vw; */
 display: flex;
 align-items: center;
+/* display: flex; */
+/* flex: 1 1 0; */
+`
+
+const LeftSideContainer = styled.div`
+height: 100%;
+width: 450px;
+display: flex;
+align-items: center;
+`
+
+const RightSideContainer = styled.div`
+height: 100%;
+width: 450px;
+display: flex;
+align-items: center;
+justify-content: flex-end;
+flex-direction: column;
+background-color: pink;
 `
 
 const CenterContainer = styled.div`
 height: 100%;
 display: flex;
 align-items: center;
-/* flex: 1 1 0; */
+flex: 1 1 0;
 justify-content: center;
 `
 

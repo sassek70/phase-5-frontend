@@ -18,12 +18,13 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
     const [isConnected, setIsConnected] = useState(false)
     const [dataStore, setDataStore] = useState({})
     const [activeTurn, setActiveTurn] = useState(false)
-    const [chosenCard, setChosenCard] = useState()
+    const [chosenCard, setChosenCard] = useState({})
     const [isAttacking, setIsAttacking] = useState(false)
     const [hostHealth, setHostHealth] = useState(gameSession.host_player_health)
     const [opponentHealth, setOpponentHealth] = useState(gameSession.opponent_player_health)
     const [gameLog, setGameLog] = useState([])
     const [errors, setErrors] = useState()
+    const [attackingCardId, setAttackingCardId] = useState()
     const navigate = useNavigate()
     const gameLogWindow = useRef(null)
     
@@ -54,8 +55,9 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                             setGameLog(gameLog => ([ ...gameLog, data.message]))
                             break;
                         case "attack-declared":
-                            // console.log(data.message)
+                            console.log(data)
                             setIsAttacking(isAttacking => !isAttacking)
+                            setAttackingCardId(data.player_action.attacking_user_card.id)
                             setGameLog(gameLog => ([ ...gameLog, data.message]))
                             break;
                         case "defense-declared":
@@ -101,7 +103,10 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                     }
                 }
             })
-            return () => consumer.disconnect()
+            return () => {
+                consumer.disconnect()
+                setGameSession()
+            }
     },[])
     
     useEffect(() => {
@@ -118,7 +123,8 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
     },[isConnected])
 
     useEffect(() => {
-        gameLogWindow.current?.scrollIntoView()
+        // console.log(gameLogWindow.current)
+        gameLogWindow.current?.scrollIntoView({behavior: "smooth", block: "nearest"})
     },[gameLog])
 
 
@@ -183,7 +189,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
         })
     }
     const selectedCard = (selectedCardId, selectedCardPower, selectedCardDefense, selectedCardUserId, selectedCardUserCardId) => {
-        setChosenCard()
+        setChosenCard({})
         if (isAttacking === true && selectedCardUserId === currentUser.id) {
             let card = {
                 player_id: currentUser.id,
@@ -213,14 +219,46 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
     let displayHostGameCards = filteredHostGameCards.map((user_card) => {
         const {id, cardName, cardPower, cardDefense, cardCost, cardDescription, cardImage, cardArtist} = user_card.card
         return (
-                <Card key={uuid()} id={id} userCardId={user_card.id} cardName={cardName} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} selectedCard={selectedCard} activeTurn={activeTurn} user_id={user_card.user_id} chosenCard={chosenCard} cardImage={cardImage} cardArtist={cardArtist}/>
+                <Card
+                    key={uuid()}
+                    id={id}
+                    userCardId={user_card.id}
+                    cardName={cardName}
+                    cardPower={cardPower}
+                    cardDefense={cardDefense}
+                    cardCost={cardCost}
+                    cardDescription={cardDescription}
+                    selectedCard={selectedCard}
+                    activeTurn={activeTurn}
+                    user_id={user_card.user_id}
+                    cardImage={cardImage}
+                    cardArtist={cardArtist}
+                    isAttackingCard={user_card.id === attackingCardId}
+                    isSelected={user_card.id === chosenCard?.user_card_id}
+                />
         )
     })
 
     let displayOpponentGameCards = filteredOpponentGameCards.map((user_card) => {
         const {id, cardName, cardPower, cardDefense, cardCost, cardDescription, cardImage, cardArtist} = user_card.card
         return (
-                <Card key={uuid()} id={id} cardName={cardName} userCardId={user_card.id} cardPower={cardPower} cardDefense={cardDefense} cardCost={cardCost} cardDescription={cardDescription} selectedCard={selectedCard} activeTurn={activeTurn} user_id={user_card.user_id} chosenCard={chosenCard} cardImage={cardImage} cardArtist={cardArtist}/>
+                <Card
+                    key={uuid()}
+                    id={id}
+                    cardName={cardName}
+                    userCardId={user_card.id}
+                    cardPower={cardPower}
+                    cardDefense={cardDefense}
+                    cardCost={cardCost}
+                    cardDescription={cardDescription}
+                    selectedCard={selectedCard}
+                    activeTurn={activeTurn}
+                    user_id={user_card.user_id}
+                    cardImage={cardImage}
+                    cardArtist={cardArtist}
+                    isAttackingCard={user_card.id === attackingCardId}
+                    isSelected={user_card.id === chosenCard?.user_card_id}
+                />
         )
     })
 
@@ -319,14 +357,14 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
     return (
         <>
         {/* <h3>{`Player 1: ${currentUser? currentUser.username : guestUser}`}</h3> */}
-        <h3>{`Player 1: ${currentUser.username}`}</h3>
+        {/* <h3>{`Player 1: ${currentUser.username}`}</h3>
         {gameSession.opponent_id ? 
             <>
             <h3>{`Player 2: ${gameSession.opponent_id}`}</h3> 
             </>
             : 
             <h3>Waiting for opponent</h3>
-        }
+        } */}
         {/* <div>{`Game-key: ${gameSession.game_key}`}</div> */}
         {/* <button onClick={()=>updateServer()}>Add one to count</button> */}
         {/* <p>Count: {count}</p> */}
@@ -366,9 +404,8 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                             <p>Waiting for opponent to join</p>}
             </PlayerCardArea>
         <GameActions className="server-log" >
-            <div ref={gameLogWindow}>
                 {displayLog}
-            </div>
+            <div ref={gameLogWindow}></div>
         </GameActions>
             <ActionRow>
                 <SideActionContainer style={{justifyContent: "flex-start"}}>
@@ -465,8 +502,8 @@ const GameTable = styled.div`
     border: 2px solid black;
     justify-content: center;
     align-items: center;
-    margin-left: auto;
-    margin-right: auto;
+    /* margin-left: auto; */
+    /* margin-right: auto; */
     min-width: 80vw;
     padding: 10px;
     background-color: rgba(0, 0, 0, 0.95);
@@ -512,15 +549,10 @@ const Body = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: auto;
-    width: 100vw;
+    width: 100%;
     color: white;
+    margin-top: 40px;
 `
-const PlayerNotesContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    `
-
 const PlayerNotes = styled.div`
     display: flex;
     justify-content: left;

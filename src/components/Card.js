@@ -1,10 +1,18 @@
+import { useState } from "react"
 import styled from "styled-components"
 
 
-const Card = ({cardName, cardPower, cardDefense, cardCost, cardDescription, id, selectedCard, cardImage, cardArtist, user_id, userCardId} ) => {
+const Card = ({cardName, cardPower, cardDefense, cardCost, cardDescription, id, selectedCard, cardImage, cardArtist, user_id, userCardId, isAttackingCard = false, isSelected} ) => {
+
+    const handleCardClick = () => {
+        selectedCard(id, cardPower, cardDefense, user_id, userCardId)
+
+    }
+
+
 
     return (
-        <CardStyle className='player-card' onClick={()=>selectedCard(id, cardPower, cardDefense, user_id, userCardId)}>
+        <CardStyle className='player-card' isAttackingCard={isAttackingCard} isSelected={isSelected} onClick={()=>handleCardClick()}>
             <h4>{cardName}</h4>
             {/* <p>Cost: {cardCost}</p> */}
             <ImageContainer>
@@ -15,13 +23,6 @@ const Card = ({cardName, cardPower, cardDefense, cardCost, cardDescription, id, 
                 <div>Power/Toughness: {cardPower}/{cardDefense}</div>
             </CardDetails>
 
-            {/* <div>
-                {chosenCard?
-                <button onClick={()=>submitAction()}>Confirm</button>
-                :
-                <></>
-            }
-            </div> */}
         </CardStyle>
     )
 }
@@ -31,6 +32,8 @@ export default Card
 
 const CardStyle = styled.div`
    border: 2px solid #631414;
+   border-color: ${({isSelected}) => isSelected &&  "yellow"};
+   border-color: ${({isAttackingCard}) => isAttackingCard ?   "green" : null};
    /* filter: drop-shadow(19px 13px 16px #000);  */
    border-radius: 24px;
    background: slategrey;
@@ -43,6 +46,7 @@ const CardStyle = styled.div`
    flex-direction:column;
    align-items: center;
    color: black;
+
    `
 
 const ImageContainer = styled.div`

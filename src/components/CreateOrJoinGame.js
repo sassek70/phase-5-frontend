@@ -16,6 +16,7 @@ const CreateOrJoinGame = ({setGameSession, guestUser, setGuestUser}) => {
 
     const handleChange = (e) => {
         const {name, value} = e.target
+        e.target.setCustomValidity("")
         setFormData((formData) => ({...formData, [name]: value}))
     }
 
@@ -103,7 +104,7 @@ const CreateOrJoinGame = ({setGameSession, guestUser, setGuestUser}) => {
             <form onSubmit={handleSubmit}>
               <InputContainer>
                 <Label htmlFor="username">Have a Game Key?</Label>
-                <input type="text" value={formData.gameKey} name="gameKey" placeholder="Enter a Game Key" onChange={handleChange}></input>
+                <input type="text" value={formData.gameKey} name="gameKey" placeholder="Enter a Game Key" required onInvalid={invalidKey} onChange={handleChange}></input>
               </InputContainer>
               <InputContainer>
                 <Button type="submit">Join!</Button>
