@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import styled from "styled-components"
 
 
@@ -8,7 +8,6 @@ const Card = ({cardName, cardPower, cardDefense, cardCost, cardDescription, id, 
         selectedCard(id, cardPower, cardDefense, user_id, userCardId)
 
     }
-
 
 
     return (
@@ -32,8 +31,9 @@ export default Card
 
 const CardStyle = styled.div`
    border: 2px solid #631414;
-   border-color: ${({isSelected}) => isSelected &&  "yellow"};
-   border-color: ${({isAttackingCard}) => isAttackingCard ?   "green" : null};
+   border-color: ${({isSelected}) => isSelected ?   "#e9cd3f" : null};
+   border-width: ${({isSelected, isAttackingCard}) => isSelected || isAttackingCard ?   "5px" : null};
+   border-color: ${({isAttackingCard}) => isAttackingCard ?   "#e9cd3f" : null};
    /* filter: drop-shadow(19px 13px 16px #000);  */
    border-radius: 24px;
    background: slategrey;
@@ -62,7 +62,6 @@ const CardDetails = styled.div`
     flex-direction: column;
     margin: auto;
     padding: 2px;
-    /* border: 2px solid black; */
     font-size:smaller;
 `
 

@@ -90,6 +90,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                             }
 
                             setChosenCard(chosenCard => {})
+                            setAttackingCardId()
                             // console.log(data.message)
                             setGameLog(gameLog => ([ ...gameLog, data.message]))
                             break;

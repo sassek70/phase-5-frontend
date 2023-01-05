@@ -49,7 +49,7 @@ const UserProfile = () => {
             <Stats>
                 <div>Games Played: {updatedStats.gamesPlayed}</div>
                 <div>Games Won: {updatedStats.gamesWon}</div>
-                <div>Win%: {updatedStats.win_rate}</div>
+                <div>Win rate: {updatedStats.win_rate ? updatedStats.win_rate : 0} %</div>
             </Stats>
             :
             <>
