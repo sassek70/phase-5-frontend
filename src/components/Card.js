@@ -31,9 +31,10 @@ export default Card
 
 const CardStyle = styled.div`
    border: 2px solid #631414;
-   border-color: ${({isSelected}) => isSelected ?   "#e9cd3f" : null};
+   /* border-color: ${({isSelected}) => isSelected ?   "#e9cd3f" : null}; */
+   border-color: ${({isSelected, isAttackingCard}) => isSelected || isAttackingCard ?   "green" : null};
    border-width: ${({isSelected, isAttackingCard}) => isSelected || isAttackingCard ?   "5px" : null};
-   border-color: ${({isAttackingCard}) => isAttackingCard ?   "#e9cd3f" : null};
+   /* border-color: ${({isAttackingCard}) => isAttackingCard ?   "#green" : null}; */
    /* filter: drop-shadow(19px 13px 16px #000);  */
    border-radius: 24px;
    background: slategrey;

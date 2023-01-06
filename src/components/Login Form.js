@@ -58,7 +58,7 @@ const LogInForm = () => {
                     </InputContainer>
                     <InputContainer>
                         <Label htmlFor="password">Password:</Label>
-                        <input type="text" value={formData.password} name="password" placeholder="Enter a password" onChange={handleChange}></input>
+                        <input type="password" value={formData.password} name="password" placeholder="Enter a password" onChange={handleChange}></input>
                     </InputContainer>
                     <InputContainer>
                         <Button type="submit">Log In</Button>

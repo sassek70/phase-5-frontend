@@ -19,9 +19,9 @@ const Welcome = ({guestUser}) => {
         <Body>
 
         <HowToPlay>
-            <Wrapper style={{paddingTop: '15px'}}>
+            {/* <Wrapper style={{paddingTop: '15px'}}>
                 <Details>A Not So Magical Gathering is a 1v1 browser based card-battle game. This game has been created using Reactjs and Ruby on Rails. At this time, you must create an account in order to play to game.</Details>
-            </Wrapper>
+            </Wrapper> */}
             <Wrapper>
                 <h5>GETTING STARTED:</h5>
             </Wrapper>
