@@ -72,13 +72,14 @@ const Footer = styled.footer`
   min-height: 10vh;
   background-color: rgba(0,0,0,0.9);
   color: white;
-  margin-top: 30px;
-  padding-left: 10px;
+  /* margin-top: 30px; */
+  display: flex;
+  justify-content: center;
 `
 const Header = styled.header`
   display: flex;
   flex-direction: row;
-  height: 6vh;
+  height: 7vh;
   background-color: rgba(0,0,0,0.9);
   width: 100%;
 `
