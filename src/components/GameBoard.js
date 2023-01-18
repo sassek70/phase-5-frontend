@@ -78,7 +78,10 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                                 }
                             break;
                         case "update-cards":
-                            updateDataStore('userCard', data.game_cards)
+                            // console.log(data.game_cards.player_action_cards[0].user_card)
+                            console.log(data.destroyed_user_cards)
+                            // updateDataStore('userCard', data.game_cards)
+                            updateUserCards(data.destroyed_user_cards)
                             break;
                         case "combat-results":
                             if (data.attacking_player === currentUser.id) {
@@ -138,6 +141,12 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
             models.forEach(model => copiedDataStore[modelName][model.id] = model)
             return copiedDataStore
         })
+    }
+
+    const updateUserCards = (destroyedUserCard) => {
+        console.log(destroyedUserCard)
+        console.log(dataStore.userCard)
+        // destroyedUserCard.map((userCard) => dataStore.userCard === destroyedUserCard.id ? dataStore.userCard.isActive === destroyedUserCard.isActive : null )
     }
 
     const createPlayerCards = () => {
@@ -213,7 +222,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
             setChosenCard(card)
         }
     }
-    
+    console.log(dataStore)
     let filteredHostGameCards = Object.values(dataStore.userCard ?? {}).filter((userCard) => userCard.user_id === gameSession.host_user_id && userCard.isActive ? userCard : null)
     let filteredOpponentGameCards = Object.values(dataStore.userCard ?? {}).filter((userCard) => userCard.user_id !== gameSession.host_user_id && userCard.isActive ? userCard : null)
 
