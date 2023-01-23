@@ -28,18 +28,18 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
     const navigate = useNavigate()
     const gameLogWindow = useRef(null)
     
-    
+    // Create websocket connection and handle server broadcasts
     useEffect(() => {
         const subscriber =  consumer.subscriptions.create({
                 channel: "GameSessionChannel",
                 game_key: `${gameSession.game_key}`,
             },{
                 connected: () => {
-                    console.log("connected")
+                    // console.log("connected")
                     setIsConnected(true)
                 },
                 disconnected: () => {
-                    console.log("disconnected")
+                    // console.log("disconnected")
                     setIsConnected(false)
                 },
                 received: (data) => {
@@ -55,13 +55,12 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                             setGameLog(gameLog => ([ ...gameLog, data.message]))
                             break;
                         case "attack-declared":
-                            console.log(data)
+                            // console.log(data)
                             setIsAttacking(isAttacking => !isAttacking)
                             setAttackingCardId(data.player_action.attacking_user_card.id)
                             setGameLog(gameLog => ([ ...gameLog, data.message]))
                             break;
                         case "defense-declared":
-                            // console.log(data.message)
                             setGameLog(gameLog => ([ ...gameLog, data.message]))
                             break;
                         case "update-health":
@@ -78,10 +77,9 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                                 }
                             break;
                         case "update-cards":
-                            // console.log(data.game_cards.player_action_cards[0].user_card)
-                            console.log(data.destroyed_user_cards)
-                            // updateDataStore('userCard', data.game_cards)
-                            updateUserCards(data.destroyed_user_cards)
+                            // console.log(data.destroyed_user_cards)
+                            updateDataStore('userCard', data.destroyed_user_cards)
+                            // console.log("update-cards ", dataStore)
                             break;
                         case "combat-results":
                             if (data.attacking_player === currentUser.id) {
@@ -91,19 +89,17 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                                 setActiveTurn((activeTurn) => true)
                                 setIsAttacking((isAttacking) => true)
                             }
-
                             setChosenCard(chosenCard => {})
                             setAttackingCardId()
-                            // console.log(data.message)
                             setGameLog(gameLog => ([ ...gameLog, data.message]))
                             break;
                         case "draw":
                             alert("Neither player has cards remaining. Game is a draw")
                             navigate('/home')
                             break;
-                        case "test":
-                            // console.log(data)
-                            break;
+                        // case "test":
+                        //     // console.log(data)
+                        //     break;
                     }
                 }
             })
@@ -113,6 +109,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
             }
     },[])
     
+    // set Host player as the first turn
     useEffect(() => {
         if (!isConnected) {
             return
@@ -126,29 +123,95 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
         
     },[isConnected])
 
+    // scroll the game log with new updates
     useEffect(() => {
-        // console.log(gameLogWindow.current)
         gameLogWindow.current?.scrollIntoView({behavior: "smooth", block: "nearest"})
     },[gameLog])
 
 
+    // const handleDataReceived = (data) => {
+    //     switch(data.action) {
+    //         case "counter":
+    //             setCount(data.count);
+    //             break;
+    //         case "all-cards":
+    //             updateDataStore('userCard', data.game_cards)
+    //             break;
+    //         case "user-joined":
+    //             setGameSession(data.game)
+    //             setGameLog(gameLog => ([ ...gameLog, data.message]))
+    //             break;
+    //         case "attack-declared":
+    //             console.log(data)
+    //             setIsAttacking(isAttacking => !isAttacking)
+    //             setAttackingCardId(data.player_action.attacking_user_card.id)
+    //             setGameLog(gameLog => ([ ...gameLog, data.message]))
+    //             break;
+    //         case "defense-declared":
+    //             // console.log(data.message)
+    //             setGameLog(gameLog => ([ ...gameLog, data.message]))
+    //             break;
+    //         case "update-health":
+    //                 if(data.player === "host") {
+    //                     setHostHealth((hostHealth) => data.health)
+    //                     if (data.health <= 0) {
+    //                         handleGameOver(data.health)
+    //                     }
+    //                 } else {
+    //                     setOpponentHealth((opponentHealth) => data.health)
+    //                     if (data.health <= 0) {
+    //                         handleGameOver(data.health)
+    //                     }
+    //                 }
+    //             break;
+    //         case "update-cards":
+    //             // console.log(data.game_cards.player_action_cards[0].user_card)
+    //             console.log(data.destroyed_user_cards)
+    //             updateDataStore('userCard', data.destroyed_user_cards)
+    //             // updateUserCards(data.destroyed_user_cards, dataStore)
+    //             // updateUserCards(data.destroyed_user_cards)
+    //             // updateUserCards(dataStore)
+    //             console.log("update-cards ", dataStore)
+    //             break;
+    //         case "combat-results":
+    //             if (data.attacking_player === currentUser.id) {
+    //                 setActiveTurn((activeTurn) => false)
+    //                 setIsAttacking((isAttacking) => false)
+    //             } else {
+    //                 setActiveTurn((activeTurn) => true)
+    //                 setIsAttacking((isAttacking) => true)
+    //             }
+
+    //             setChosenCard(chosenCard => {})
+    //             setAttackingCardId()
+    //             // console.log(data.message)
+    //             setGameLog(gameLog => ([ ...gameLog, data.message]))
+    //             break;
+    //         case "draw":
+    //             alert("Neither player has cards remaining. Game is a draw")
+    //             navigate('/home')
+    //             break;
+    //         case "test":
+    //             // console.log(data)
+    //             break;
+    //     }
+    // }
 
 
+
+    // Contains all user_cards for both players as well as serialized data from the server.
     const updateDataStore = (modelName, models) => {
         setDataStore(dataStore => {
             const copiedDataStore = {...dataStore}
+            // Makes dataStore expandable to have other keys if needed.
             copiedDataStore[modelName] = copiedDataStore[modelName] ?? {}
+            // Models will change based on server response, for each thing we want to change, check dataStore, if existing update, if not add new one with new value = also called an "Upsert - update/insert"
             models.forEach(model => copiedDataStore[modelName][model.id] = model)
             return copiedDataStore
         })
     }
 
-    const updateUserCards = (destroyedUserCard) => {
-        console.log(destroyedUserCard)
-        console.log(dataStore.userCard)
-        // destroyedUserCard.map((userCard) => dataStore.userCard === destroyedUserCard.id ? dataStore.userCard.isActive === destroyedUserCard.isActive : null )
-    }
-
+    // Pulls the user_cards from the server, stores them in dataStore.
     const createPlayerCards = () => {
         fetch(`${process.env.REACT_APP_BACKEND_URL}/create_random_deck`, {
             method: "POST",
@@ -157,7 +220,6 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                 "Accept": "application/json"
             },
             body: JSON.stringify({
-                // player_id: currentUser? currentUser.id : guestUser,
                 player_id: currentUser.id,
                 game_id: gameSession.id
             })
@@ -174,30 +236,32 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
         })
     }
 
+    // used for testing websocket connection
+    // const updateServer = () => {
+    //     fetch(`${process.env.REACT_APP_BACKEND_URL}/increase_counter`, {
+    //         method: "POST",
+    //         headers: {
+    //           "Content-Type": "application/json",
+    //           "Accept": "application/json"
+    //         },
+    //         body: JSON.stringify({game_key: gameSession.game_key}),
+    //       })
+    //     // .then(res => { 
+    //     //     if (res.ok) {
+    //     //     res.json().then(updatedCount => setCount(updatedCount))
+    //     //     }
+    //     // })
+    //     consumer.send({
+    //         command: "message",
+    //         // identifier:{
+    //             channel: "GameSessionChannel",
+    //             game_key: gameSession.game_key,
+    //         // },
+    //         data:JSON.stringify({message:"button clicked"})
+    //     })
+    // }
 
-    const updateServer = () => {
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/increase_counter`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Accept": "application/json"
-            },
-            body: JSON.stringify({game_key: gameSession.game_key}),
-          })
-        // .then(res => { 
-        //     if (res.ok) {
-        //     res.json().then(updatedCount => setCount(updatedCount))
-        //     }
-        // })
-        consumer.send({
-            command: "message",
-            // identifier:{
-                channel: "GameSessionChannel",
-                game_key: gameSession.game_key,
-            // },
-            data:JSON.stringify({message:"button clicked"})
-        })
-    }
+    // Sets state to reflect the card the active player has chosen
     const selectedCard = (selectedCardId, selectedCardPower, selectedCardDefense, selectedCardUserId, selectedCardUserCardId) => {
         setChosenCard({})
         if (isAttacking === true && selectedCardUserId === currentUser.id) {
@@ -210,22 +274,16 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                 game_id: gameSession.id,
                 user_card_id: selectedCardUserCardId
             }
-            // console.log({
-            //     player_id: currentUser.id,
-            //     card_id:selectedCardId,
-            //     power: selectedCardPower,
-            //     defense: selectedCardDefense,
-            //     user_id: selectedCardUserId,
-            //     game_id: gameSession.id
 
-            // })
             setChosenCard(card)
         }
     }
-    console.log(dataStore)
+
+    // Divide the dataStore userCards between their respective players.
     let filteredHostGameCards = Object.values(dataStore.userCard ?? {}).filter((userCard) => userCard.user_id === gameSession.host_user_id && userCard.isActive ? userCard : null)
     let filteredOpponentGameCards = Object.values(dataStore.userCard ?? {}).filter((userCard) => userCard.user_id !== gameSession.host_user_id && userCard.isActive ? userCard : null)
 
+    // Filter throught the dataStore to only display cards that have isActive: true
     let displayHostGameCards = filteredHostGameCards.map((user_card) => {
         const {id, cardName, cardPower, cardDefense, cardCost, cardDescription, cardImage, cardArtist} = user_card.card
         return (
@@ -272,6 +330,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
         )
     })
 
+    // Function determines the amount of active cards remaining for both players
     const cardCounter = (playerCardsArray) => {
         let count = playerCardsArray.length
         for (const card of playerCardsArray) {
@@ -282,6 +341,35 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
         return count
     }
 
+    // Function is called after each "combat-result" case from the server. If there are no cards with isActive: true, the game ends in a draw.
+    const checkForActiveCards = () => {
+
+        if(cardCounter(displayHostGameCards) === 0 && cardCounter(displayOpponentGameCards) === 0) {
+            console.log(`Host: ${cardCounter(displayHostGameCards)}, Opponent: ${cardCounter(displayOpponentGameCards)}`)
+
+            // if(currentUser.id === gameSession.host_user_id) {
+            //     fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.game_key}/draw`, {
+            //         method: "PATCH",
+            //         headers: {
+            //             "Content-Type": "application/json",
+            //             "Accept": "application/json"
+            //         },
+            //         body: JSON.stringify({draw: true})
+            //     })
+            //     .then(res => {
+            //         if (!res.ok) {
+            //             res.json().then(errors => setErrors(errors))
+            //         } 
+            //     })
+            // }
+            // alert("No active cards remaining. Game is a draw.")
+            // navigate('/home')
+        }
+    }
+
+    if(dataStore.length > 0) {
+        checkForActiveCards()}
+    // Confirms the attacking player's card choice and sends to the server.
     const submitAttackAction = () => {
         fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.id}/player_actions/attack`, {
             method: "POST",
@@ -298,8 +386,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
         })
     }
 
-
-
+    // Confirms the defending player's card choice and sends to the server.
     const submitDefendAction = () => {
         fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.id}/player_actions/combat`, {
             method: "POST",
@@ -316,6 +403,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
         })
     }
 
+    // If a player has no cards remaining and it is their turn to attack, a button will appear to target this endpoint, allowing the active player to skip their turn.
     const submitSkipAction = () => {
         fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.id}/player_actions/skip`, {
             method: "POST",
@@ -335,7 +423,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
     }
 
 
-
+    // If a player has no cards remaining and it is their turn to defend, a button will appear to target this endpoint, allowing the active player to skip their turn.
     const endTurnNoCard = () => {
         fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.id}/player_actions/combat`, {
             method: "POST",
@@ -354,6 +442,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
         })
     }
 
+    // Function gets called if one player's health is <= 0 to signal the end of the game.
     const handleGameOver = () => {
             alert("Game over")
             setGameSession()
@@ -361,7 +450,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
     }
 
 
-
+    // Display messages from the server to let player's know what is happening each turn.
     const displayLog = gameLog.map((log) => <p key={uuid()}>{log}</p>)
    
     return (
