@@ -6,19 +6,19 @@ import { useNavigate } from "react-router-dom"
 import GameLog from "./GameLog"
 import {UserContext} from "../context/UserContext"
 import styled from "styled-components"
-import { GameCardContext } from "../context/GameCardContext"
+// import { GameCardContext } from "../context/GameCardContext"
 
 // console.log(consumer)
 
 const GameBoard = ({gameSession, setGameSession, guestUser}) => {
     
     const {currentUser} = useContext(UserContext)
-    const {dataStore, setDataStore, updateDataStore} = useContext(GameCardContext)
+    // const {dataStore, setDataStore, updateDataStore} = useContext(GameCardContext)
 
     
     const [count, setCount] = useState(0)
     const [isConnected, setIsConnected] = useState(false)
-    // const [dataStore, setDataStore] = useState({})
+    const [dataStore, setDataStore] = useState({})
     const [activeTurn, setActiveTurn] = useState(false)
     const [chosenCard, setChosenCard] = useState({})
     const [isAttacking, setIsAttacking] = useState(false)
@@ -70,15 +70,32 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                             setGameLog(gameLog => ([ ...gameLog, data.message]))
                             break;
                         case "update-health":
+                                // if(data.player === "host") {
+                                //     setHostHealth((hostHealth) => data.health)
+                                //     if (data.health <= 0) {
+                                //         if (currentUser.id === gameSession.opponent_id)
+                                //         handleGameOver("Game Over, you lose!")
+                                //     } else {
+                                //         handleGameOver("Game Over, you win!")
+                                //     }
+                                // } else {
+                                //     setOpponentHealth((opponentHealth) => data.health)
+                                //     if (data.health <= 0) {
+                                //         if (currentUser.id === gameSession.opponent_id)
+                                //         handleGameOver("Game Over, you lose!")
+                                //     } else {
+                                //         handleGameOver("Game Over, you win!")
+                                //     }
+                                // }
                                 if(data.player === "host") {
                                     setHostHealth((hostHealth) => data.health)
                                     if (data.health <= 0) {
-                                        handleGameOver(data.health)
+                                        handleGameOver("Game Over")
                                     }
                                 } else {
                                     setOpponentHealth((opponentHealth) => data.health)
                                     if (data.health <= 0) {
-                                        handleGameOver(data.health)
+                                        handleGameOver("Game Over")
                                     }
                                 }
                             break;
@@ -97,7 +114,6 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                             }
                             setChosenCard(chosenCard => {})
                             setAttackingCardId()
-                            // checkForActiveCards()
                             setGameLog(gameLog => ([ ...gameLog, data.message]))
                             break;
                         case "draw":
@@ -207,16 +223,16 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
 
 
     // Contains all user_cards for both players as well as serialized data from the server.
-    // const updateDataStore = (modelName, models) => {
-    //     setDataStore(dataStore => {
-    //         const copiedDataStore = {...dataStore}
-    //         // Makes dataStore expandable to have other keys if needed.
-    //         copiedDataStore[modelName] = copiedDataStore[modelName] ?? {}
-    //         // Models will change based on server response, for each thing we want to change, check dataStore, if existing update, if not add new one with new value = also called an "Upsert - update/insert"
-    //         models.forEach(model => copiedDataStore[modelName][model.id] = model)
-    //         return copiedDataStore
-    //     })
-    // }
+    const updateDataStore = (modelName, models) => {
+        setDataStore(dataStore => {
+            const copiedDataStore = {...dataStore}
+            // Makes dataStore expandable to have other keys if needed.
+            copiedDataStore[modelName] = copiedDataStore[modelName] ?? {}
+            // Models will change based on server response, for each thing we want to change, check dataStore, if existing update, if not add new one with new value = also called an "Upsert - update/insert"
+            models.forEach(model => copiedDataStore[modelName][model.id] = model)
+            return copiedDataStore
+        })
+    }
 
     // Pulls the user_cards from the server, stores them in dataStore.
     const createPlayerCards = () => {
@@ -348,31 +364,6 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
         }
         return count
     }
-    // Function is called after each "combat-result" case from the server. If there are no cards with isActive: true, the game ends in a draw.
-
-        if(gameStarted === true && displayHostGameCards.length === 0 && displayOpponentGameCards.length === 0) {
-            if(currentUser.id === gameSession.host_user_id) {
-                fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.game_key}/draw`, {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "application/json"
-                    },
-                    body: JSON.stringify({draw: true})
-                })
-                .then(res => {
-                    if (!res.ok) {
-                        res.json().then(errors => setErrors(errors))
-                    } 
-                })
-                alert("No active cards remaining. Game is a draw.")
-                console.log("boo")
-                navigate('/home')
-
-            }
-        }
-
-
 
     // Confirms the attacking player's card choice and sends to the server.
     const submitAttackAction = () => {
@@ -448,12 +439,36 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
     }
 
     // Function gets called if one player's health is <= 0 to signal the end of the game.
-    const handleGameOver = () => {
-            alert("Game over")
+    const handleGameOver = (message) => {
+            alert(message)
             setGameSession()
             navigate('/home')
     }
 
+    // Check to see if either player still has active cards. If both players have no cards with isActive: true, the game ends in a draw.
+    let hostActiveCards = displayHostGameCards.length
+    let opponentActiveCards = displayOpponentGameCards.length
+    useEffect(() => {
+
+        if(gameStarted === true && hostActiveCards === 0 && opponentActiveCards === 0) {
+            if(currentUser.id === gameSession.host_user_id) {
+                fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.game_key}/draw`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify({draw: true})
+                })
+                .then(res => {
+                if (!res.ok) {
+                    res.json().then(errors => setErrors(errors))
+                } 
+            })
+        }
+        handleGameOver("No active cards remaining. Game is a draw.")
+        }
+    },[hostActiveCards, opponentActiveCards])
 
     // Display messages from the server to let player's know what is happening each turn.
     const displayLog = gameLog.map((log) => <p key={uuid()}>{log}</p>)
