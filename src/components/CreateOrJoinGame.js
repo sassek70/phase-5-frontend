@@ -5,12 +5,10 @@ import styled from "styled-components"
 
 
 const CreateOrJoinGame = ({setGameSession, guestUser, setGuestUser}) => {
-    // const [currentUser, setCurrentUser] = useState()
     const navigate = useNavigate()
     const [errors, setErrors] = useState()
     const [formData, setFormData] = useState({gameKey: ""})
     const [gameKey, setGameKey] = useState("")
-
     const {currentUser} = useContext(UserContext)
 
 
@@ -20,10 +18,8 @@ const CreateOrJoinGame = ({setGameSession, guestUser, setGuestUser}) => {
         setFormData((formData) => ({...formData, [name]: value}))
     }
 
+    // Create a new game and redirect host player to game board.
     const handleClick = () => {
-        // e.preventDefault()
-        // console.log("click")
-
         fetch(`${process.env.REACT_APP_BACKEND_URL}/users/${currentUser.id}/creategame`,{
         method: "POST",
         headers: {
@@ -31,7 +27,6 @@ const CreateOrJoinGame = ({setGameSession, guestUser, setGuestUser}) => {
           "Content-Type": "application/json",
           "Accept": "application/json"
         },
-        // body: JSON.stringify(formData),
       })
       .then(res => {
         if (res.ok) {
@@ -46,10 +41,9 @@ const CreateOrJoinGame = ({setGameSession, guestUser, setGuestUser}) => {
   }
 
 
-    const handleSubmit = (e) => {
+  // Join a game through a provided game key
+  const handleSubmit = (e) => {
         e.preventDefault()
-
-
           fetch(`${process.env.REACT_APP_BACKEND_URL}/joingame/${formData.gameKey}`,{
             method: "PATCH",
             headers: {
