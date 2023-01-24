@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react"
+import { useCallback, useContext, useEffect, useRef, useState } from "react"
 import consumer from "../cable"
 import uuid from "react-uuid"
 import Card from "./Card"
@@ -6,17 +6,19 @@ import { useNavigate } from "react-router-dom"
 import GameLog from "./GameLog"
 import {UserContext} from "../context/UserContext"
 import styled from "styled-components"
+import { GameCardContext } from "../context/GameCardContext"
 
 // console.log(consumer)
 
 const GameBoard = ({gameSession, setGameSession, guestUser}) => {
     
     const {currentUser} = useContext(UserContext)
+    const {dataStore, setDataStore, updateDataStore} = useContext(GameCardContext)
 
     
     const [count, setCount] = useState(0)
     const [isConnected, setIsConnected] = useState(false)
-    const [dataStore, setDataStore] = useState({})
+    // const [dataStore, setDataStore] = useState({})
     const [activeTurn, setActiveTurn] = useState(false)
     const [chosenCard, setChosenCard] = useState({})
     const [isAttacking, setIsAttacking] = useState(false)
@@ -27,6 +29,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
     const [attackingCardId, setAttackingCardId] = useState()
     const navigate = useNavigate()
     const gameLogWindow = useRef(null)
+    const [gameStarted, setGameStarted] = useState(false)
     
     // Create websocket connection and handle server broadcasts
     useEffect(() => {
@@ -37,6 +40,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                 connected: () => {
                     // console.log("connected")
                     setIsConnected(true)
+                    // createPlayerCards()
                 },
                 disconnected: () => {
                     // console.log("disconnected")
@@ -53,12 +57,14 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                         case "user-joined":
                             setGameSession(data.game)
                             setGameLog(gameLog => ([ ...gameLog, data.message]))
+                            
                             break;
                         case "attack-declared":
                             // console.log(data)
                             setIsAttacking(isAttacking => !isAttacking)
                             setAttackingCardId(data.player_action.attacking_user_card.id)
                             setGameLog(gameLog => ([ ...gameLog, data.message]))
+                            setGameStarted((gameStarted) => true)
                             break;
                         case "defense-declared":
                             setGameLog(gameLog => ([ ...gameLog, data.message]))
@@ -91,6 +97,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                             }
                             setChosenCard(chosenCard => {})
                             setAttackingCardId()
+                            // checkForActiveCards()
                             setGameLog(gameLog => ([ ...gameLog, data.message]))
                             break;
                         case "draw":
@@ -200,16 +207,16 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
 
 
     // Contains all user_cards for both players as well as serialized data from the server.
-    const updateDataStore = (modelName, models) => {
-        setDataStore(dataStore => {
-            const copiedDataStore = {...dataStore}
-            // Makes dataStore expandable to have other keys if needed.
-            copiedDataStore[modelName] = copiedDataStore[modelName] ?? {}
-            // Models will change based on server response, for each thing we want to change, check dataStore, if existing update, if not add new one with new value = also called an "Upsert - update/insert"
-            models.forEach(model => copiedDataStore[modelName][model.id] = model)
-            return copiedDataStore
-        })
-    }
+    // const updateDataStore = (modelName, models) => {
+    //     setDataStore(dataStore => {
+    //         const copiedDataStore = {...dataStore}
+    //         // Makes dataStore expandable to have other keys if needed.
+    //         copiedDataStore[modelName] = copiedDataStore[modelName] ?? {}
+    //         // Models will change based on server response, for each thing we want to change, check dataStore, if existing update, if not add new one with new value = also called an "Upsert - update/insert"
+    //         models.forEach(model => copiedDataStore[modelName][model.id] = model)
+    //         return copiedDataStore
+    //     })
+    // }
 
     // Pulls the user_cards from the server, stores them in dataStore.
     const createPlayerCards = () => {
@@ -279,6 +286,7 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
         }
     }
 
+
     // Divide the dataStore userCards between their respective players.
     let filteredHostGameCards = Object.values(dataStore.userCard ?? {}).filter((userCard) => userCard.user_id === gameSession.host_user_id && userCard.isActive ? userCard : null)
     let filteredOpponentGameCards = Object.values(dataStore.userCard ?? {}).filter((userCard) => userCard.user_id !== gameSession.host_user_id && userCard.isActive ? userCard : null)
@@ -340,35 +348,32 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
         }
         return count
     }
-
     // Function is called after each "combat-result" case from the server. If there are no cards with isActive: true, the game ends in a draw.
-    const checkForActiveCards = () => {
 
-        if(cardCounter(displayHostGameCards) === 0 && cardCounter(displayOpponentGameCards) === 0) {
-            console.log(`Host: ${cardCounter(displayHostGameCards)}, Opponent: ${cardCounter(displayOpponentGameCards)}`)
+        if(gameStarted === true && displayHostGameCards.length === 0 && displayOpponentGameCards.length === 0) {
+            if(currentUser.id === gameSession.host_user_id) {
+                fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.game_key}/draw`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify({draw: true})
+                })
+                .then(res => {
+                    if (!res.ok) {
+                        res.json().then(errors => setErrors(errors))
+                    } 
+                })
+                alert("No active cards remaining. Game is a draw.")
+                console.log("boo")
+                navigate('/home')
 
-            // if(currentUser.id === gameSession.host_user_id) {
-            //     fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.game_key}/draw`, {
-            //         method: "PATCH",
-            //         headers: {
-            //             "Content-Type": "application/json",
-            //             "Accept": "application/json"
-            //         },
-            //         body: JSON.stringify({draw: true})
-            //     })
-            //     .then(res => {
-            //         if (!res.ok) {
-            //             res.json().then(errors => setErrors(errors))
-            //         } 
-            //     })
-            // }
-            // alert("No active cards remaining. Game is a draw.")
-            // navigate('/home')
+            }
         }
-    }
 
-    if(dataStore.length > 0) {
-        checkForActiveCards()}
+
+
     // Confirms the attacking player's card choice and sends to the server.
     const submitAttackAction = () => {
         fetch(`${process.env.REACT_APP_BACKEND_URL}/game/${gameSession.id}/player_actions/attack`, {
@@ -580,9 +585,9 @@ const GameBoard = ({gameSession, setGameSession, guestUser}) => {
                 }
             </PlayerCardArea>
             </GameTable>
-            <div>
-
-            </div>
+            {/* <div>
+                {checkForActiveCards()}
+            </div> */}
 
 
 

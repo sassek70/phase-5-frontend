@@ -10,6 +10,7 @@ import UserProfile from "./UserProfile";
 import Welcome from "./Welcome";
 import {UserContext} from "../context/UserContext"
 import styled from "styled-components";
+import { GameCardProvider } from "../context/GameCardContext";
 
 
 
@@ -49,7 +50,11 @@ const welcomeMessage = () => {
         <Route path='/signup' element={<SignUpForm setCurrentUser={setCurrentUser}/>}/>
         <Route path='/login' element={<LogInForm setCurrentUser={setCurrentUser}/>}/>
         <Route path='/newgame' element={<CreateOrJoinGame setGameSession={setGameSession} guestUser={guestUser} setGuestUser={setGuestUser}/>}/>
-        <Route path={`/game/${gameSession? gameSession.game_key : null}`} element={<GameBoard gameSession={gameSession} setGameSession={setGameSession} guestUser={guestUser}/>}/>
+        <Route path={`/game/${gameSession? gameSession.game_key : null}`} element={
+          <GameCardProvider>
+            <GameBoard gameSession={gameSession} setGameSession={setGameSession} guestUser={guestUser}/>
+          </GameCardProvider>
+        }/>
         <Route path='/profile' element={<UserProfile currentUser={currentUser}/>}/>
         <Route path='/leaderboard' element={<Leaderboard/>}/>
       </Routes>
