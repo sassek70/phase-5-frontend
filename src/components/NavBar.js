@@ -11,7 +11,6 @@ const NavBar = ({handleLogOut, gameSession}) => {
 
     return(
             <>
-            {/* <NavBarRow> */}
                 <LeftSideContainer>
                     <Title>A Not So Magical Gathering</Title>
                 </LeftSideContainer>
@@ -21,54 +20,47 @@ const NavBar = ({handleLogOut, gameSession}) => {
                 <RightSideContainer >
                     <NavBarRow>
                         <LinkWrapper>
-                                <NavLink className="nav-links" to='/home' name="Home">Home</NavLink>
-                            </LinkWrapper>
-                                {currentUser ?
-                                // <LinkWrapper>
-                                //     <button onClick={() => handleLogOut()}>Log Out</button>
-                                // </LinkWrapper>
-                                <></>
-                                :
-                                <>
-
+                            <NavLink className="nav-links" to='/home' name="Home">Home</NavLink>
+                        </LinkWrapper>
+                            {currentUser ?
+                            <></>
+                            :
+                            <>
                                 <LinkWrapper>
-                                <NavLink className="nav-links" to='/signup' name='Sign Up'>Sign Up</NavLink>
+                                    <NavLink className="nav-links" to='/signup' name='Sign Up'>Sign Up</NavLink>
                                 </LinkWrapper>
-                                </>
-                                }
-                                <LinkWrapper>
+                            </>
+                            }
+                            <LinkWrapper>
                                 <NavLink className="nav-links" to='/newgame' name='Host Game'>Host or Join a Game</NavLink>
-                                </LinkWrapper>
-                                {currentUser?
-                                <LinkWrapper>
-                                    <NavLink className="nav-links" to='/profile' name='User Profile'>Profile</NavLink>
-                                </LinkWrapper>
-                                :
-                                <></>
+                            </LinkWrapper>
+                            {currentUser?
+                            <LinkWrapper>
+                                <NavLink className="nav-links" to='/profile' name='User Profile'>Profile</NavLink>
+                            </LinkWrapper>
+                            :
+                            <></>
                             }
                             <LinkWrapper>
                                 <NavLink className="nav-links" to='/leaderboard' name='Leaderboard'>Leaderboard</NavLink>
                             </LinkWrapper>
                     </NavBarRow>
-                    {/* <CurrentProfile> */}
-                        {currentUser ? 
-                            <UserContainer>
-                                Logged in as: {currentUser.username}
-                                <Button onClick={() => handleLogOut()}>Log Out</Button>
-                            </UserContainer>
-                            : 
-                            <>
-                            <UserContainer>
-                                Not Logged in
-                                <LinkWrapper>
-                                    <NavLink className="nav-links" to='/login' name='Log In'>Log In</NavLink>
-                                </LinkWrapper>
-                            </UserContainer>
-                            </>
-                            }
-                    {/* </CurrentProfile> */}
+                    {currentUser ? 
+                        <UserContainer>
+                            Logged in as: {currentUser.username}
+                            <Button onClick={() => handleLogOut()}>Log Out</Button>
+                        </UserContainer>
+                        : 
+                        <>
+                        <UserContainer>
+                            Not Logged in
+                            <LinkWrapper>
+                                <NavLink className="nav-links" to='/login' name='Log In'>Log In</NavLink>
+                            </LinkWrapper>
+                        </UserContainer>
+                        </>
+                        }
                 </RightSideContainer>
-            {/* </NavBarRow> */}
             </>
     )
 }
@@ -76,13 +68,12 @@ const NavBar = ({handleLogOut, gameSession}) => {
 export default NavBar
 
 
+// Everything below is for styling
+
 const NavBarRow = styled.nav`
     height: 100%;
-    /* min-width: 75vw; */
     display: flex;
     align-items: center;
-    /* display: flex; */
-    /* flex: 1 1 0; */
 `
 
 const LeftSideContainer = styled.div`
@@ -127,18 +118,17 @@ const LinkWrapper = styled.div`
 
 const Button = styled.button`
     margin-left: 10px;
-    /* margin-bottom: 5px; */
     color: white;
     background-color: rgba(0,0,0,0.9);
     border-radius: 5px;
     color: #631414;
     border: 0px solid #631414;
 
-  &:hover {
-    background-color: #631414;
-    cursor: pointer;
-    color: black;
-  }
+    &:hover {
+        background-color: #631414;
+        cursor: pointer;
+        color: black;
+    }
 `
 
 const UserContainer = styled.div`

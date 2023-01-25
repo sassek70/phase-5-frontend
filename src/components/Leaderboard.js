@@ -56,10 +56,12 @@ const Leaderboard = () => {
 
 export default Leaderboard
 
+
+// Everything below is for styling
+
 const Table = styled.table`
     border: 10px ridge #311D1D;
     margin: auto;
-    /* display: flex; */
     justify-content: center;
     align-items: center;
 `
@@ -69,12 +71,12 @@ const Th = styled.th`
     padding: 5px;
     padding-left: 10px;    
     border-left: 2px ridge #311D1D;
-    `
+`
 
 const Thnb = styled.th`
-min-width: 130px;
-padding: 5px;
-padding-left: 10px;    
+    min-width: 130px;
+    padding: 5px;
+    padding-left: 10px;    
 `
 
 const Td = styled.td`
@@ -88,33 +90,26 @@ const Tdnb = styled.td`
     border-top: 2px ridge #311D1D;
 `
 
-
-
 const TableContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 50vw;
-  /* height: 20vw; */
-  background-color: rgba(0,0,0,0.9);
-  justify-content: center;
-  /* align-items: center; */
-  color: white;
-  border-radius: 20px;
-  border: 2px solid #631414;
-  padding: 30px 10px 30px 10px;
-  margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    width: 50vw;
+    background-color: rgba(0,0,0,0.9);
+    justify-content: center;
+    color: white;
+    border-radius: 20px;
+    border: 2px solid #631414;
+    padding: 30px 10px 30px 10px;
+    margin-top: 50px;
 `
 
 const InputContainer = styled.div`
     display: flex;
     justify-content: center;
     padding: 10px;
-        
 `
 
 const Body = styled.div`
-  display: flex;
-  justify-content: center;
-  /* align-items: center; */
-
+    display: flex;
+    justify-content: center;
 `
