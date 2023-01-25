@@ -64,46 +64,29 @@ const Welcome = ({guestUser}) => {
             </Wrapper>
         </HowToPlay>
         </Body>
-        {/* <table>
-                <tr>
-                    <th>Case</th>
-                    <th>Attacking Card (AC) Power</th>
-                    <th>Attacking Card (AC) Toughness</th>
-                    <th>Defending Card (DC) Power</th>
-                    <th>Defending Card (DC) Toughness</th>
-                    <th>Result</th>
-                </tr>
-                <tr>
-                    <td>{`AC Power < DC Toughness & DC Power < AC Toughness`}</td>
-                </tr>
-        </table> */}
-
         </>
     )
 }
 
 export default Welcome
 
+// Everything below is for styling
 
 const HowToPlay = styled.div`
-display: flex;
-flex-direction: column;
-width: 70vw;
-background-color: rgba(0,0,0,0.9);
-/* justify-content: center; */
-/* align-items: center; */
-color: white;
-border-radius: 20px;
-border: 2px solid #631414;
-padding: 10px;
-margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    width: 70vw;
+    background-color: rgba(0,0,0,0.9);
+    color: white;
+    border-radius: 20px;
+    border: 2px solid #631414;
+    padding: 10px;
+    margin-top: 20px;
 `
 
 const Body = styled.div`
-display: flex;
-justify-content: center;
-/* align-items: center; */
-
+    display: flex;
+    justify-content: center;
 `
 
 const Wrapper = styled.div`
