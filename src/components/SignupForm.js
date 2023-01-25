@@ -77,52 +77,47 @@ const SignUpForm = () => {
 
 export default SignUpForm
 
-
+// Everything below is for styling
 
 const FormContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 30vw;
-  height: 20vw;
-  background-color: rgba(0,0,0,0.9);
-  justify-content: center;
-  /* align-items: center; */
-  color: white;
-  border-radius: 20px;
-  border: 2px solid #631414;
-  padding: 10px;
-  margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    width: 30vw;
+    height: 20vw;
+    background-color: rgba(0,0,0,0.9);
+    justify-content: center;
+    color: white;
+    border-radius: 20px;
+    border: 2px solid #631414;
+    padding: 10px;
+    margin-top: 50px;
 `
 
 const InputContainer = styled.div`
     display: flex;
     justify-content: center;
     padding: 10px;
-        
 `
 
 const Body = styled.div`
-  display: flex;
-  justify-content: center;
-  /* align-items: center; */
-
+    display: flex;
+    justify-content: center;
 `
 
-
 const Button = styled.button`
-  border-radius: 20px;
-  color: red;
-  border: 2px solid #631414;
-  background-color: rgba(0,0,0,0.9);
-  padding: 10px;
+    border-radius: 20px;
+    color: red;
+    border: 2px solid #631414;
+    background-color: rgba(0,0,0,0.9);
+    padding: 10px;
 
-  &:hover {
-    background-color: #631414;
-    cursor: pointer;
-    color: black;
-  }
+    &:hover {
+        background-color: #631414;
+        cursor: pointer;
+        color: black;
+    }
 `
 
 const Label = styled.label`
-  padding-right: 10px;
+    padding-right: 10px;
 `

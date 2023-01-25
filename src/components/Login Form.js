@@ -14,9 +14,6 @@ const LogInForm = () => {
         password: ""
     })
 
-
-
-
     const handleChange = (e) => {
         const {name, value} = e.target
         setFormData((formData) => ({...formData, [name]: value}))
@@ -41,12 +38,9 @@ const LogInForm = () => {
             })
         } else {
             res.json().then(errors => setErrors(errors))
-      }
-    })
+        }
+      })
     }
-
-
-   
 
     return (
         <Body>
@@ -78,7 +72,7 @@ const LogInForm = () => {
 
 export default LogInForm
 
-
+// Everything below is for styling
 
 const FormContainer = styled.div`
   display: flex;
@@ -87,7 +81,6 @@ const FormContainer = styled.div`
   height: 20vw;
   background-color: rgba(0,0,0,0.9);
   justify-content: center;
-  /* align-items: center; */
   color: white;
   border-radius: 20px;
   border: 2px solid #631414;
@@ -96,19 +89,15 @@ const FormContainer = styled.div`
 `
 
 const InputContainer = styled.div`
-    display: flex;
-    justify-content: center;
-    padding: 10px;
-        
+  display: flex;
+  justify-content: center;
+  padding: 10px;
 `
 
 const Body = styled.div`
   display: flex;
   justify-content: center;
-  /* align-items: center; */
-
 `
-
 
 const Button = styled.button`
   border-radius: 20px;

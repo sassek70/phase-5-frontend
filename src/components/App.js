@@ -10,9 +10,6 @@ import UserProfile from "./UserProfile";
 import Welcome from "./Welcome";
 import {UserContext} from "../context/UserContext"
 import styled from "styled-components";
-// import { GameCardProvider } from "../context/GameCardContext";
-
-
 
 function App() {
   const navigate = useNavigate()
@@ -20,29 +17,16 @@ function App() {
   const [gameSession, setGameSession] = useState(null)
   const {currentUser, setCurrentUser} = useContext(UserContext)
 
-
-
   const handleLogOut =() => {
     localStorage.removeItem("uid")
     navigate("/home")
     setCurrentUser()
 }
 
-// const welcomeMessage = () => {
-//   if (currentUser) {
-//     return currentUser.username
-//   } else {
-//     return guestUser
-//   }
-//   }
-
-
   return (
     <>
     <Header>
-      {/* <MenuItems> */}
         <NavBar handleLogOut={handleLogOut} gameSession={gameSession} />
-      {/* </MenuItems> */}
     </Header>
     <Main>
       <Routes>
@@ -50,16 +34,13 @@ function App() {
         <Route path='/signup' element={<SignUpForm setCurrentUser={setCurrentUser}/>}/>
         <Route path='/login' element={<LogInForm setCurrentUser={setCurrentUser}/>}/>
         <Route path='/newgame' element={<CreateOrJoinGame setGameSession={setGameSession} guestUser={guestUser} setGuestUser={setGuestUser}/>}/>
-        <Route path={`/game/${gameSession? gameSession.game_key : null}`} element={
-          // <GameCardProvider>
-            <GameBoard gameSession={gameSession} setGameSession={setGameSession} guestUser={guestUser}/>
-          // </GameCardProvider>
-        }/>
+        <Route path={`/game/${gameSession? gameSession.game_key : null}`} element={<GameBoard gameSession={gameSession} setGameSession={setGameSession} guestUser={guestUser}/>}/>
         <Route path='/profile' element={<UserProfile currentUser={currentUser}/>}/>
         <Route path='/leaderboard' element={<Leaderboard/>}/>
       </Routes>
     </Main>
       <Footer>
+        {/* Keep this disclaimer, must be shown on all pages.*/}
         <p>A Not So Magical Gathering is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC.<br /> A Not So Magical Gathering is a simplified battle-card game based on <a href="https://company.wizards.com/en">Wizards of the Coast's</a> trading-card game <a href="https://magic.wizards.com/en">Magic: The Gathering</a> and was created as a cap-stone project for <a href="https://flatironschool.com/courses/coding-bootcamp/">Flatiron School's Software Engineering</a> course. <br /> Card images and Artist information provided by the <a href="https://scryfall.com/docs/api/cards">Scryfall API</a>.</p>
       </Footer>
 
@@ -70,14 +51,14 @@ function App() {
 export default App;
 
 
+
+// Everything below is for styling
+
 const Footer = styled.footer`
   bottom: 0;
-  /* position: relative; */
-  /* width: 100%; */
   min-height: 10vh;
   background-color: rgba(0,0,0,0.9);
   color: white;
-  /* margin-top: 30px; */
   display: flex;
   justify-content: center;
 `
@@ -88,7 +69,6 @@ const Header = styled.header`
   background-color: rgba(0,0,0,0.9);
   width: 100%;
 `
-
 
 const MenuItems = styled.div`
   justify-content: flex-end;
